@@ -1,0 +1,95 @@
+site_name: UtutCam
+site_description: Live Video-Analyse & Alarm-System — Auto Track, Gesicht, Waffen, Dieb, Fahndung
+site_url: ""
+repo_url: ""
+
+nav:
+  - Start:
+      - index.md
+      - installation.md
+      - quickstart.md
+  - Funktionen:
+      - auto_track.md
+      - gesichtserkennung.md
+      - waffenerkennung.md
+      - dieberkennung.md
+      - fahndung.md
+      - web_app.md
+  - API-Referenz:
+      - api/auto_track.md
+      - api/gesichtserkennung.md
+      - api/waffen_erkennung.md
+      - api/dieb_erkennung.md
+      - api/fahndung.md
+      - api/web_app.md
+      - api/core.md
+  - Simulationen & Visualisierungen:
+      - simulationen.md
+
+theme:
+  name: material
+  language: de
+  favicon: assets/logo.svg
+  logo: assets/logo.svg
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Dunkler Modus
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/brightness-4
+        name: Heller Modus
+
+extra:
+  social: []
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [.]
+          options:
+            show_source: false
+            show_root_heading: true
+            show_if_no_docstring: true
+
+extra_css:
+  - stylesheets/extra.css
+
+copyright: "&copy; 2026 UtutCam"

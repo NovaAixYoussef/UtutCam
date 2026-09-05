@@ -1,0 +1,65 @@
+/* UtutCam Docs - Markenfarben & Feinschliff */
+
+/* --- Brand-Farben (aus visualize_network.py Palette) --- */
+:root {
+  --md-primary-fg-color: #3b75a8;
+  --md-primary-fg-color--light: #5aa7de;
+  --md-primary-fg-color--dark: #2e5f8c;
+  --md-accent-fg-color: #5bb88a;
+  --md-accent-fg-color--light: #9d87c6;
+  --md-accent-fg-color--dark: #3e9c6f;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #5aa7de;
+  --md-primary-fg-color--light: #7cc0ea;
+  --md-primary-fg-color--dark: #3b75a8;
+  --md-accent-fg-color: #5bb88a;
+}
+
+/* Header mit dezentem Verlauf */
+.md-header {
+  background: linear-gradient(90deg, var(--md-primary-fg-color--dark) 0%, var(--md-primary-fg-color--light) 100%);
+}
+
+/* Code-Blöcke etwas ruhiger */
+.md-typeset code {
+  font-size: 0.85em;
+}
+
+/* Tabellen auf Sektionen luftiger */
+.md-typeset table:not([class]) {
+  font-size: 0.82em;
+}
+
+/* Diagrammbilder zentriert + abgerundet */
+.md-typeset img {
+  border-radius: 10px;
+  margin: 0.5rem auto;
+  display: block;
+}
+
+/* Landing-Page Hero */
+.md-typeset h1 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Feature-Karten Landing-Page */
+.grid.cards > .card,
+.grid.cards > div {
+  border-radius: 12px;
+  border: 1px solid #e3ecf4;
+  box-shadow: 0 1px 4px rgba(59, 117, 168, 0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.grid.cards > .card:hover,
+.grid.cards > div:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(59, 117, 168, 0.18);
+}
+
+.grid.cards img {
+  margin: 0;
+}
