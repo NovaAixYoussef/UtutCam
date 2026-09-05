@@ -1,0 +1,1603 @@
+
+<!doctype html>
+<html lang="de" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Live Video-Analyse & Alarm-System — Auto Track, Gesicht, Waffen, Dieb, Fahndung">
+      
+      
+      
+      
+        <link rel="prev" href="../gesichtserkennung/">
+      
+      
+        <link rel="next" href="../dieberkennung/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>UtutCam — Waffenerkennung (Gun / Hand / Messer) - UtutCam</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ututcam-waffenerkennung-gun-hand-messer" class="md-skip">
+          Zum Inhalt
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Kopfzeile">
+    <a href=".." title="UtutCam" class="md-header__button md-logo" aria-label="UtutCam" data-md-component="logo">
+      
+  <img src="../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            UtutCam
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              UtutCam — Waffenerkennung (Gun / Hand / Messer)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Dunkler Modus"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Dunkler Modus" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Heller Modus"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Heller Modus" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Suche" placeholder="Suche" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Suche">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Zurücksetzen" aria-label="Zurücksetzen" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Suche wird initialisiert
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Hauptnavigation" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href=".." class="md-tabs__link">
+          
+  
+  
+  Start
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../auto_track/" class="md-tabs__link">
+          
+  
+  
+  Funktionen
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/auto_track/" class="md-tabs__link">
+          
+  
+  
+  API-Referenz
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../simulationen/" class="md-tabs__link">
+          
+  
+  
+  Simulationen & Visualisierungen
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="UtutCam" class="md-nav__button md-logo" aria-label="UtutCam" data-md-component="logo">
+      
+  <img src="../assets/logo.svg" alt="logo">
+
+    </a>
+    UtutCam
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Start
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UtutCam
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Schnellstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Funktionen
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Funktionen
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../auto_track/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UtutCam — Auto Track (Personenverfolgung mit PTZ-Kamera)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gesichtserkennung/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UtutCam — Gesichtserkennung (InsightFace / Colab)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UtutCam — Waffenerkennung (Gun / Hand / Messer)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UtutCam — Waffenerkennung (Gun / Hand / Messer)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Inhaltsverzeichnis">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Inhaltsverzeichnis
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-uberblick" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Überblick
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-startbefehle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Startbefehle
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Startbefehle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-live-demo-mit-3-fenstern-webcam-waffen-gesichter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Live-Demo mit 3 Fenstern (Webcam + Waffen + Gesichter)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-web-app-ganzes-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Web-App (Ganzes Dashboard)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-haupt-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Haupt-Dashboard
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-wie-es-funktioniert" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Wie es funktioniert
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-modelle-colab-trainiert" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Modelle (Colab-trainiert)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-konfidenzen-einstellungen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Konfidenzen / Einstellungen
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-integrierte-nutzung" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Integrierte Nutzung
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-verwandte-dateien" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Verwandte Dateien
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dieberkennung/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UtutCam — Dieberkennung (Shoplifting / Ladendiebstahl)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fahndung/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UtutCam — Fahndung (Bundespolizei-Scanner + Live-Match)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web_app/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UtutCam — Web-App (Flask Dashboard + REST-API)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API-Referenz
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API-Referenz
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/auto_track/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API-Referenz — Auto Track
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/gesichtserkennung/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API-Referenz — Gesichtserkennung
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/waffen_erkennung/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API-Referenz — Waffenerkennung
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/dieb_erkennung/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API-Referenz — Dieberkennung
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/fahndung/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API-Referenz — Fahndung
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/web_app/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API-Referenz — Web-App
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API-Referenz — Core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulationen & Visualisierungen
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Simulationen & Visualisierungen
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../simulationen/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulationen &amp; Visualisierungen
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Inhaltsverzeichnis">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Inhaltsverzeichnis
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-uberblick" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Überblick
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-startbefehle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Startbefehle
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Startbefehle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-live-demo-mit-3-fenstern-webcam-waffen-gesichter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Live-Demo mit 3 Fenstern (Webcam + Waffen + Gesichter)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-web-app-ganzes-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Web-App (Ganzes Dashboard)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-haupt-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Haupt-Dashboard
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-wie-es-funktioniert" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Wie es funktioniert
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-modelle-colab-trainiert" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Modelle (Colab-trainiert)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-konfidenzen-einstellungen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Konfidenzen / Einstellungen
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-integrierte-nutzung" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Integrierte Nutzung
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-verwandte-dateien" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Verwandte Dateien
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="ututcam-waffenerkennung-gun-hand-messer">UtutCam — Waffenerkennung (Gun / Hand / Messer)<a class="headerlink" href="#ututcam-waffenerkennung-gun-hand-messer" title="Permanent link">&para;</a></h1>
+<h2 id="1-uberblick">1. Überblick<a class="headerlink" href="#1-uberblick" title="Permanent link">&para;</a></h2>
+<p>Die Waffenerkennung erkennt <strong>Schusswaffen (gun)</strong>, <strong>Hände (hand)</strong> und
+<strong>Messer</strong> live im Video — mithilfe eines <strong>YOLOv8-Neuronalen Netzes</strong>, das auf
+Google Colab mit eigenen Daten trainiert wurde. Pro erkanntem Objekt liefert
+die Erkennung eine Bounding-Box, eine Konfidenz und die Klasse.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Kamera/Video ──► YOLOv8 (UtutGun/UtutBest) ──► Box + Konfidenz ──► orangener Kasten + Label
+</code></pre></div>
+<p><img alt="Waffenerkennung Ablauf" src="../bilder/waffen_ablauf.png" /></p>
+<p><strong>Simulation:</strong> <a href="../simulationen/waffen_simulation.mp4"><code>waffen_simulation.mp4</code></a>
+(26 s) — echte Aufnahme einer <strong>Gun-Erkennung</strong> aus <code>data/results/</code>: Personen
+mit gezogener Waffe werden live als orangener Kasten mit Konfidenz-Label
+markiert.</p>
+<h2 id="2-startbefehle">2. Startbefehle<a class="headerlink" href="#2-startbefehle" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p>Alle Skripte laufen vom Projektstamm <code>C:\Users\youss\Desktop\UtutCam</code> aus.</p>
+</blockquote>
+<h3 id="21-live-demo-mit-3-fenstern-webcam-waffen-gesichter">2.1 Live-Demo mit 3 Fenstern (Webcam + Waffen + Gesichter)<a class="headerlink" href="#21-live-demo-mit-3-fenstern-webcam-waffen-gesichter" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">cd </span><span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">youss</span><span class="p">\</span><span class="n">Desktop</span><span class="p">\</span><span class="n">UtutCam</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">youss</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Local</span><span class="p">\</span><span class="n">Python</span><span class="p">\</span><span class="n">pythoncore</span><span class="p">-</span><span class="n">3</span><span class="p">.</span><span class="n">14</span><span class="p">-</span><span class="n">64</span><span class="p">\</span><span class="n">python</span><span class="p">.</span><span class="n">exe</span> <span class="n">messer_erkennung</span><span class="p">\</span><span class="n">live_3fenster</span><span class="p">.</span><span class="n">py</span>
+</code></pre></div>
+<p>Öffnet 3 Fenster: Live-Video, Waffen-Erkennung, Gesichtserkennung. <code>Esc</code>
+beendet.</p>
+<h3 id="22-web-app-ganzes-dashboard">2.2 Web-App (Ganzes Dashboard)<a class="headerlink" href="#22-web-app-ganzes-dashboard" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">youss</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Local</span><span class="p">\</span><span class="n">Python</span><span class="p">\</span><span class="n">pythoncore</span><span class="p">-</span><span class="n">3</span><span class="p">.</span><span class="n">14</span><span class="p">-</span><span class="n">64</span><span class="p">\</span><span class="n">python</span><span class="p">.</span><span class="n">exe</span> <span class="n">web_app</span><span class="p">\</span><span class="n">server</span><span class="p">.</span><span class="n">py</span>
+</code></pre></div>
+<p>Im Browser <code>http://localhost:5000</code> → Seite <code>Waffen_erkennung</code>.</p>
+<h3 id="23-haupt-dashboard">2.3 Haupt-Dashboard<a class="headerlink" href="#23-haupt-dashboard" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">youss</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Local</span><span class="p">\</span><span class="n">Python</span><span class="p">\</span><span class="n">pythoncore</span><span class="p">-</span><span class="n">3</span><span class="p">.</span><span class="n">14</span><span class="p">-</span><span class="n">64</span><span class="p">\</span><span class="n">python</span><span class="p">.</span><span class="n">exe</span> <span class="n">main</span><span class="p">.</span><span class="n">py</span>
+</code></pre></div>
+<h2 id="3-wie-es-funktioniert">3. Wie es funktioniert<a class="headerlink" href="#3-wie-es-funktioniert" title="Permanent link">&para;</a></h2>
+<p>Die Kernklassen liegen in <code>waffen_erkennung/detector.py</code> und nutzen alle
+Ultralytics-YOLOv8-Modelle (<code>.pt</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Klasse</th>
+<th>Modell</th>
+<th>Erkennt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GunDetector</code></td>
+<td><code>UtutGun.pt</code></td>
+<td>Schusswaffen (Klasse <code>gun</code>)</td>
+</tr>
+<tr>
+<td><code>HandDetector</code></td>
+<td><code>UtutHand2.pt</code></td>
+<td>Hände (Klasse <code>hand</code>)</td>
+</tr>
+<tr>
+<td><code>WeaponDetector</code></td>
+<td>kombiniert Gun+Hand</td>
+<td>Waffen mit Handbewegung/präzise</td>
+</tr>
+<tr>
+<td><code>KnifeDetector</code></td>
+<td><code>UtutBest.pt</code></td>
+<td>Messer, Waffen, Hände (gemischt)</td>
+</tr>
+</tbody>
+</table>
+<p>Ablauf pro Frame:</p>
+<ol>
+<li>Frame an <code>self.model(frame, stream=True, verbose=False, conf=0.25,
+   imgsz=640)</code> geben.</li>
+<li>YOLO liefert eine Liste mit Boxen; nur die Zielklasse (<code>gun</code> bzw. <code>hand</code>)
+   wird behalten.</li>
+<li>Konfidenz wird auf ganze Prozent gerundet (<code>conf*100//1 // 100</code>).</li>
+<li>Treffer werden als orangener (0,165,255) Kasten mit Label <code>gun 0.83</code>
+   gezeichnet (<code>GunDetector.draw()</code>).</li>
+</ol>
+<p>Zusätzlich gibt es eine <strong>Hand-über-Waffe-Abdeckung</strong>:
+<code>messer_erkennung/test_video_hand.py</code> testet mit <code>hand_cover(gun_box,
+hand_box)</code>, ob eine Hand das Waffen-Objekt verdeckt — das reduziert Fehlalarme
+durch bloße Hände.</p>
+<h2 id="4-modelle-colab-trainiert">4. Modelle (Colab-trainiert)<a class="headerlink" href="#4-modelle-colab-trainiert" title="Permanent link">&para;</a></h2>
+<p>Die Modelle liegen in <code>waffen_erkennung/models/</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Datei</th>
+<th>Verwendet von</th>
+<th>Beschreibung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UtutGun.pt</code></td>
+<td>GunDetector</td>
+<td>nur Schusswaffen</td>
+</tr>
+<tr>
+<td><code>UtutHand.pt</code> / <code>UtutHand2.pt</code></td>
+<td>HandDetector</td>
+<td>nur Hände</td>
+</tr>
+<tr>
+<td><code>UtutBest.pt</code></td>
+<td>KnifeDetector / Weaponset</td>
+<td>Multi-Klassen (Waffen+Hände+Messer)</td>
+</tr>
+<tr>
+<td><code>UtutHead.pt</code></td>
+<td>Kopf/Person Preview</td>
+<td>Gesicht/Kopf-Preview (auch für AutoTrack)</td>
+</tr>
+<tr>
+<td><code>UtutPerson.pt</code></td>
+<td>Dieb-Erkennung</td>
+<td>Personenklasse</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Entstehung:</strong> Das Training erfolgte <strong>auf Google Colab</strong> mit eigenen
+trainierten Gewichten (Notebooks unter <code>colab/</code>), Export nach <code>.pt</code>
+(Ultralytics). Die Modelle werden über das GitHub-Release <code>v1</code>
+(<code>NovaAixYoussef/ututcam-models</code>) bereitgestellt.</p>
+<h2 id="5-konfidenzen-einstellungen">5. Konfidenzen / Einstellungen<a class="headerlink" href="#5-konfidenzen-einstellungen" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Standard</th>
+<th>Bedeutung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>conf_threshold</code></td>
+<td><code>0.25</code></td>
+<td>nur Objekte mit Konfidenz ≥ 0.25 werden gemeldet</td>
+</tr>
+<tr>
+<td><code>imgsz</code></td>
+<td><code>640</code></td>
+<td>Eingabeauflösung des Modells</td>
+</tr>
+<tr>
+<td><code>stream=True</code></td>
+<td>–</td>
+<td>inkrementelle Inferenz (schneller)</td>
+</tr>
+<tr>
+<td><code>verbose=False</code></td>
+<td>–</td>
+<td>keine störenden Logs</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-integrierte-nutzung">6. Integrierte Nutzung<a class="headerlink" href="#6-integrierte-nutzung" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>web_app/server.py</code> → <code>WaffenWorker</code> (Thread) meldet Waffen live im Browser.</li>
+<li><code>messer_erkennung/UtutCam.py</code> → Haupt-Live-Pipeline (Waffe + Gesicht +
+  Fahndung) mit <code>ThreadedStream</code>.</li>
+<li><code>waffen_erkennung/detector.py</code> → sehr einfacher Einstieg:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">waffen_erkennung.detector</span><span class="w"> </span><span class="kn">import</span> <span class="n">GunDetector</span><span class="p">,</span> <span class="n">HandDetector</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">gun</span>  <span class="o">=</span> <span class="n">GunDetector</span><span class="p">()</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>     <span class="c1"># [{&quot;box&quot;:(x1,y1,x2,y2), &quot;conf&quot;:0.9, &quot;class&quot;:&quot;gun&quot;}]</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">hands</span> <span class="o">=</span> <span class="n">HandDetector</span><span class="p">()</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>    <span class="c1"># [{&quot;box&quot;:..., &quot;conf&quot;:0.7, &quot;class&quot;:&quot;hand&quot;}]</span>
+</code></pre></div>
+<h2 id="7-verwandte-dateien">7. Verwandte Dateien<a class="headerlink" href="#7-verwandte-dateien" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>waffen_erkennung/detector.py</code> — GunDetector/HandDetector/WeaponDetector</li>
+<li><code>waffen_erkennung/models/*.pt</code> — Colab-trainierte Modelle</li>
+<li><code>messer_erkennung/live_3fenster.py</code> — 3-Fenster-Live-Demo</li>
+<li><code>messer_erkennung/UtutCam.py</code> — Voll-Pipeline</li>
+<li><code>docs/</code> — diese Dokumentation</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Zurück zum Seitenanfang
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      &copy; 2026 UtutCam
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "In Zwischenablage kopiert", "clipboard.copy": "In Zwischenablage kopieren", "search.result.more.one": "1 weiteres Suchergebnis auf dieser Seite", "search.result.more.other": "# weitere Suchergebnisse auf dieser Seite", "search.result.none": "Keine Suchergebnisse", "search.result.one": "1 Suchergebnis", "search.result.other": "# Suchergebnisse", "search.result.placeholder": "Suchbegriff eingeben", "search.result.term.missing": "Es fehlt", "select.version": "Version ausw\u00e4hlen"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

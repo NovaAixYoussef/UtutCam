@@ -1,0 +1,1830 @@
+
+<!doctype html>
+<html lang="de" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Live Video-Analyse & Alarm-System — Auto Track, Gesicht, Waffen, Dieb, Fahndung">
+      
+      
+      
+      
+        <link rel="prev" href="../quickstart/">
+      
+      
+        <link rel="next" href="../gesichtserkennung/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>UtutCam — Auto Track (Personenverfolgung mit PTZ-Kamera) - UtutCam</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ututcam-auto-track-personenverfolgung-mit-ptz-kamera" class="md-skip">
+          Zum Inhalt
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Kopfzeile">
+    <a href=".." title="UtutCam" class="md-header__button md-logo" aria-label="UtutCam" data-md-component="logo">
+      
+  <img src="../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            UtutCam
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              UtutCam — Auto Track (Personenverfolgung mit PTZ-Kamera)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Dunkler Modus"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Dunkler Modus" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Heller Modus"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Heller Modus" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Suche" placeholder="Suche" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Suche">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Zurücksetzen" aria-label="Zurücksetzen" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Suche wird initialisiert
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Hauptnavigation" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href=".." class="md-tabs__link">
+          
+  
+  
+  Start
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  Funktionen
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/auto_track/" class="md-tabs__link">
+          
+  
+  
+  API-Referenz
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../simulationen/" class="md-tabs__link">
+          
+  
+  
+  Simulationen & Visualisierungen
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="UtutCam" class="md-nav__button md-logo" aria-label="UtutCam" data-md-component="logo">
+      
+  <img src="../assets/logo.svg" alt="logo">
+
+    </a>
+    UtutCam
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Start
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UtutCam
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Schnellstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Funktionen
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Funktionen
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UtutCam — Auto Track (Personenverfolgung mit PTZ-Kamera)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UtutCam — Auto Track (Personenverfolgung mit PTZ-Kamera)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Inhaltsverzeichnis">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Inhaltsverzeichnis
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-uberblick" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Überblick
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-startbefehle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Startbefehle
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Startbefehle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-echte-kamera-auto-scan-track" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Echte Kamera (Auto Scan + Track)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-simulation-keine-kamera-nur-logik-videoaufnahme" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Simulation (keine Kamera, nur Logik + Videoaufnahme)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-wie-es-funktioniert-ablauf-pro-frame" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Wie es funktioniert (Ablauf pro Frame)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Wie es funktioniert (Ablauf pro Frame)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deadzone-die-stille-mitte" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deadzone — die „stille Mitte"
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-module-modelle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Module &amp; Modelle
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Module &amp; Modelle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-detektoren-in-auto_trackscanningpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Detektoren (in auto_track/scanning.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-ptz-steuerung" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 PTZ-Steuerung
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-kamera" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Kamera
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-treibende-konstanten" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Treibende Konstanten
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-informationen-zu-google-colab" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Informationen zu Google Colab
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-haufige-probleme" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Häufige Probleme
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-verwandte-dateien" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Verwandte Dateien
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gesichtserkennung/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UtutCam — Gesichtserkennung (InsightFace / Colab)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../waffenerkennung/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UtutCam — Waffenerkennung (Gun / Hand / Messer)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dieberkennung/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UtutCam — Dieberkennung (Shoplifting / Ladendiebstahl)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fahndung/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UtutCam — Fahndung (Bundespolizei-Scanner + Live-Match)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web_app/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UtutCam — Web-App (Flask Dashboard + REST-API)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API-Referenz
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API-Referenz
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/auto_track/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API-Referenz — Auto Track
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/gesichtserkennung/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API-Referenz — Gesichtserkennung
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/waffen_erkennung/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API-Referenz — Waffenerkennung
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/dieb_erkennung/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API-Referenz — Dieberkennung
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/fahndung/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API-Referenz — Fahndung
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/web_app/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API-Referenz — Web-App
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API-Referenz — Core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulationen & Visualisierungen
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Simulationen & Visualisierungen
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../simulationen/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulationen &amp; Visualisierungen
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Inhaltsverzeichnis">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Inhaltsverzeichnis
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-uberblick" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Überblick
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-startbefehle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Startbefehle
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Startbefehle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-echte-kamera-auto-scan-track" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Echte Kamera (Auto Scan + Track)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-simulation-keine-kamera-nur-logik-videoaufnahme" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Simulation (keine Kamera, nur Logik + Videoaufnahme)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-wie-es-funktioniert-ablauf-pro-frame" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Wie es funktioniert (Ablauf pro Frame)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Wie es funktioniert (Ablauf pro Frame)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deadzone-die-stille-mitte" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deadzone — die „stille Mitte"
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-module-modelle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Module &amp; Modelle
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Module &amp; Modelle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-detektoren-in-auto_trackscanningpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Detektoren (in auto_track/scanning.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-ptz-steuerung" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 PTZ-Steuerung
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-kamera" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Kamera
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-treibende-konstanten" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Treibende Konstanten
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-informationen-zu-google-colab" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Informationen zu Google Colab
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-haufige-probleme" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Häufige Probleme
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-verwandte-dateien" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Verwandte Dateien
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="ututcam-auto-track-personenverfolgung-mit-ptz-kamera">UtutCam — Auto Track (Personenverfolgung mit PTZ-Kamera)<a class="headerlink" href="#ututcam-auto-track-personenverfolgung-mit-ptz-kamera" title="Permanent link">&para;</a></h1>
+<h2 id="1-uberblick">1. Überblick<a class="headerlink" href="#1-uberblick" title="Permanent link">&para;</a></h2>
+<p>Auto Track ist das Herzstück der UtutCam: Es erkennt eine Person im Kamerabild
+in <strong>Echtzeit</strong> und steuert die Kamera so, dass die Person <strong>immer mittig im
+Bild</strong> bleibt. Wird die Person gefunden, folgt die Kamera ihr; bewegt sie sich
+nicht (Person mittig, im Deadzone-Bereich), <strong>steht die Kamera vollkommen
+still</strong>.</p>
+<p>Die Erkennung läuft auf dem <strong>PC (lokal)</strong> — das Bild kommt per RTSP vom
+Kamera-Server, wird mit einem Neuronalen Netz (oder klassischem HOG-Detektor)
+ausgewertet und die Kamerabewegung wird über das <strong>PTZ-CGI-Protokoll</strong> der
+Hi3510-Kamera geschickt.</p>
+<p><img alt="Auto-Track Ablauf" src="../bilder/auto_track_ablauf.png" /></p>
+<p><strong>Simulation:</strong> <a href="../simulationen/auto_track_simulation.mp4"><code>auto_track_simulation.mp4</code></a>
+(~59 s, 20 FPS) zeigt die komplette Track-Schleife in der simulierten Welt —
+Person erkennen, EMA-Glättung, Fehler zur Bildmitte und die PTZ-Nachführung.</p>
+<h2 id="2-startbefehle">2. Startbefehle<a class="headerlink" href="#2-startbefehle" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>Wichtig:</strong> Alle Skripte laufen vom Projektstamm <code>C:\Users\youss\Desktop\UtutCam</code> aus
+(wegen <code>sys.path.insert(0, ".")</code>).</p>
+</blockquote>
+<h3 id="21-echte-kamera-auto-scan-track">2.1 Echte Kamera (Auto Scan + Track)<a class="headerlink" href="#21-echte-kamera-auto-scan-track" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">cd </span><span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">youss</span><span class="p">\</span><span class="n">Desktop</span><span class="p">\</span><span class="n">UtutCam</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">youss</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Local</span><span class="p">\</span><span class="n">Python</span><span class="p">\</span><span class="n">pythoncore</span><span class="p">-</span><span class="n">3</span><span class="p">.</span><span class="n">14</span><span class="p">-</span><span class="n">64</span><span class="p">\</span><span class="n">python</span><span class="p">.</span><span class="n">exe</span> <span class="n">auto_track</span><span class="p">\</span><span class="n">auto_scan_track_cgi</span><span class="p">.</span><span class="n">py</span>
+</code></pre></div>
+<p><strong>Tasten</strong> (während das Bild sichtbar ist):</p>
+<table>
+<thead>
+<tr>
+<th>Taste</th>
+<th>Aktion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>S</code></td>
+<td>Scan-Modus (Kamera pendelt weit links/rechts)</td>
+</tr>
+<tr>
+<td><code>T</code></td>
+<td>Track-Modus (Kamera folgt der Person)</td>
+</tr>
+<tr>
+<td><code>2</code> / <code>4</code></td>
+<td>Person manuell links/rechts schieben (Diagnose)</td>
+</tr>
+<tr>
+<td><code>Q</code> / <code>Esc</code></td>
+<td>Programm beenden</td>
+</tr>
+</tbody>
+</table>
+<p>Beim Start ist der <strong>Track-Modus aktiv</strong> und die Kamera beginnt sofort zu
+tracken (sobald eine Person erkannt wird).</p>
+<h3 id="22-simulation-keine-kamera-nur-logik-videoaufnahme">2.2 Simulation (keine Kamera, nur Logik + Videoaufnahme)<a class="headerlink" href="#22-simulation-keine-kamera-nur-logik-videoaufnahme" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">cd </span><span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">youss</span><span class="p">\</span><span class="n">Desktop</span><span class="p">\</span><span class="n">UtutCam</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">youss</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Local</span><span class="p">\</span><span class="n">Python</span><span class="p">\</span><span class="n">pythoncore</span><span class="p">-</span><span class="n">3</span><span class="p">.</span><span class="n">14</span><span class="p">-</span><span class="n">64</span><span class="p">\</span><span class="n">python</span><span class="p">.</span><span class="n">exe</span> <span class="n">auto_track</span><span class="p">\</span><span class="n">sim_ptz_test</span><span class="p">.</span><span class="n">py</span>
+</code></pre></div>
+<p>Die Simulation zeichnet eine virtuelle Welt, eine <strong>Person</strong> (Strichmännchen)
+und einen simulierten Kamerablick mit <strong>Pan-Anzeige unten</strong>. Sie demonstriert
+exakt dieselbe Track-Logik wie im echten Betrieb — <strong>ohne</strong> die echte Kamera.</p>
+<ul>
+<li><strong>Video-Aufnahme:</strong> Die Simulation zeichnet sich selbst als Video auf
+  (<code>auto_track\sim_aufnahme.mp4</code>, ~50 s, 20 FPS) und beendet sich danach
+  automatisch.</li>
+<li><strong>Tasten:</strong> <code>S</code> = Scan, <code>T</code> = Track, <code>7</code>/<code>9</code> = Person nach links/rechts
+  laufen lassen, <code>Q</code>/<code>Esc</code> = Beenden.</li>
+</ul>
+<p>Das aufgezeichnete Video ist unter
+<a href="../simulationen/auto_track_simulation.mp4"><code>simulationen/auto_track_simulation.mp4</code></a>
+zu finden.</p>
+<h2 id="3-wie-es-funktioniert-ablauf-pro-frame">3. Wie es funktioniert (Ablauf pro Frame)<a class="headerlink" href="#3-wie-es-funktioniert-ablauf-pro-frame" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Frame holen:</strong> <code>RTSPStream</code> liest in einem eigenen Thread die neuesten
+   Frames und gibt den aktuellsten zurück (Blockierung wird vermieden).</li>
+<li><strong>Person erkennen:</strong> Der Detektor bewertet das Bild:</li>
+<li><strong>HOG-Detektor</strong> (Standard, „ganz normaler Detektor“): klassischer
+     Histogram-of-Oriented-Gradients Detektor von OpenCV mit
+     „DefaultPeopleDetector“. Läuft stabil bei ~20–30 FPS auf einer halben
+     Auflösung (480×270). Ergebnis: 1 stabile Box.</li>
+<li>Alternativen (per Quelltext umschaltbar): <code>JahongirHumanDetector</code>
+     (YOLOv8-CrowdHuman auf Colab trainiert), <code>OpenVinoHumanDetector</code>
+     (gleiches Modell als OpenVINO-IR für CPU-Beschleunigung).</li>
+<li><strong>Kasten stabilisieren:</strong> Beim HOG-Detektor wird die Box über eine
+   <strong>EMA-Glättung</strong> geglättet — der Kasten <strong>springt nicht mehr</strong> und wird
+   nicht ständig größer/kleiner (das Problem trat beim vorherigen
+   DeepSort-Tracker auf).</li>
+<li><strong>Mittelpunkt berechnen:</strong> Aus der Box wird die X-Mitte bestimmt, der
+   Abstand zur Bildmitte ergibt den <strong>Fehler in Pixeln</strong> (<code>error_px</code>).</li>
+<li><strong>PTZ steuern (asynchron!):</strong> Der <code>PtzWorker</code> läuft in einem <strong>eigenen
+   Thread</strong> und sendet PTZ-Schritte im Hintergrund:</li>
+<li>Fehler links vom Zentrum → Kamera nach links</li>
+<li>Fehler rechts vom Zentrum → Kamera nach rechts</li>
+<li><code>|Fehler| ≤ DEADZONE_PX (60)</code> → <strong>Kamera steht still</strong> (kein Drift!)</li>
+<li>Zwischen zwei CGI-Steps liegen <strong>0.6 s</strong> (die CGI-Requests der Kamera
+     sind langsam; das Intervall schützt die Kamera vor Überlastung).</li>
+</ol>
+<h3 id="deadzone-die-stille-mitte">Deadzone — die „stille Mitte"<a class="headerlink" href="#deadzone-die-stille-mitte" title="Permanent link">&para;</a></h3>
+<p>Die Kamera soll <strong>stillstehen</strong>, wenn die Person mittig ist. Dafür gibt es die
+<code>DEADZONE_PX = 60</code>. Solange sich die Person also innerhalb von ±60 Pixeln der
+Bildmitte befindet, wird <strong>kein einziger</strong> PTZ-Schritt gesendet.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Person → Kamera → Fehler  |  Aktion
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>─────────────────────────────────────────────
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a> -180 px                  │  Kamera&lt;&gt;LINKS
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>  -30 px                  │  (DEADZONE) → STOPP
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    0 px                  │  (DEADZONE) → STOPP
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>  +45 px                  │  (DEADZONE) → STOPP
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a> +160 px                  │  Kamera&gt;RECHTS
+</code></pre></div>
+<h2 id="4-module-modelle">4. Module &amp; Modelle<a class="headerlink" href="#4-module-modelle" title="Permanent link">&para;</a></h2>
+<h3 id="41-detektoren-in-auto_trackscanningpy">4.1 Detektoren (in <code>auto_track/scanning.py</code>)<a class="headerlink" href="#41-detektoren-in-auto_trackscanningpy" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Klasse</th>
+<th>Modell</th>
+<th>Beschreibung</th>
+<th>FPS (lokal)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HogHumanDetector</code></td>
+<td>OpenCV HOG <code>DefaultPeopleDetector</code></td>
+<td>klassisch, stabil, EMA-geglättet</td>
+<td>~20–30</td>
+</tr>
+<tr>
+<td><code>JahongirHumanDetector</code></td>
+<td><code>yolov8_human/weights/best.pt</code></td>
+<td>YOLOv8-CrowdHuman, <strong>auf Google Colab trainiert</strong>, PyTorch</td>
+<td>~8–15</td>
+</tr>
+<tr>
+<td><code>OpenVinoHumanDetector</code></td>
+<td><code>jahongir_ov/jahongir_fixed.xml</code></td>
+<td>dasselbe Modell als OpenVINO-IR (416 px), CPU</td>
+<td>~19 (incl. Tracker)</td>
+</tr>
+<tr>
+<td><code>PersonDetector</code></td>
+<td><code>models/yolov8n_crowdhuman_best.pt</code></td>
+<td>Ultralytics-Wrapper (älter)</td>
+<td>–</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-ptz-steuerung">4.2 PTZ-Steuerung<a class="headerlink" href="#42-ptz-steuerung" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Klasse</th>
+<th>Protokoll</th>
+<th>Zweck</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CgiPtzController</code></td>
+<td>Hi3510 CGI (<code>yt_left.cgi</code> / <code>yt_right.cgi</code> …)</td>
+<td>Schrittsteuerung der echten Kamera (Standard)</td>
+</tr>
+<tr>
+<td><code>PTZController</code></td>
+<td>ONVIF (Velocity)</td>
+<td>ältere/ONVIF-Kamera 192.168.178.43</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-kamera">4.3 Kamera<a class="headerlink" href="#43-kamera" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Klasse</th>
+<th>Zweck</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RTSPStream</code></td>
+<td>Thread-basierter RTSP-Leser der Kamera, hält den neuesten Frame</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-treibende-konstanten">5. Treibende Konstanten<a class="headerlink" href="#5-treibende-konstanten" title="Permanent link">&para;</a></h2>
+<p>Die wichtigsten Einstellungen stehen oben in <code>auto_track/auto_scan_track_cgi.py</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Konstante</th>
+<th>Wert</th>
+<th>Bedeutung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DEADZONE_PX</code></td>
+<td><code>60</code></td>
+<td>Mittiger Bereich in Pixeln, in dem die Kamera stillsteht</td>
+</tr>
+<tr>
+<td><code>STEP_MAX</code></td>
+<td><code>6.0</code></td>
+<td>max. Schrittzahl je CGI-Befehl</td>
+</tr>
+<tr>
+<td><code>STEP_LO</code></td>
+<td><code>2.0</code></td>
+<td>Mindestschritte</td>
+</tr>
+<tr>
+<td><code>ERR_LO</code></td>
+<td><code>65</code></td>
+<td>Fehler, ab dem volle Schritte fahren</td>
+</tr>
+<tr>
+<td><code>ERR_HI</code></td>
+<td><code>200</code></td>
+<td>Fehler, ab dem volle Schritte fahren</td>
+</tr>
+<tr>
+<td><code>MISS_TOLERANZ</code></td>
+<td><code>12</code></td>
+<td>Frames ohne Person, bis keine Zielwahl mehr</td>
+</tr>
+<tr>
+<td><code>MISS_TRACK_TO_SCAN</code></td>
+<td><code>14</code></td>
+<td>Frames ohne Person, bis in Scan gewechselt wird</td>
+</tr>
+<tr>
+<td><code>CONF</code></td>
+<td><code>0.30</code></td>
+<td>Konfidenz-Schwelle des Detektors</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-informationen-zu-google-colab">6. Informationen zu Google Colab<a class="headerlink" href="#6-informationen-zu-google-colab" title="Permanent link">&para;</a></h2>
+<p>Das verwendete Personen-Modell (YOLOv8, CrowdHuman-Variante) wurde <strong>auf
+Google Colab trainiert</strong>:</p>
+<ul>
+<li><strong>Colab-Notebooks:</strong> unter <code>colab/</code> — <code>build_ututcam_notebook.py</code>
+  (Webcam-Live-Detektion) und <code>build_ututcam_notebook_v2.py</code> (4-Fenster-System,
+  lädt <code>UtutBest/UtutGun/UtutHand.pt</code> + <code>faces.json</code> + <code>fahndungen.json</code> vom
+  GitHub-Release <code>v1</code> des Repos <code>NovaAixYoussef/ututcam-models</code>).</li>
+<li>Dort wurden Modell-Exporte (PyTorch → ONNX → OpenVINO) für die CPU-Ausführung
+  vorbereitet. Der Export nach <strong>OpenVINO-IR</strong> wird lokal genutzt, um hohe
+  Bildraten ohne GPU zu erreichen.</li>
+</ul>
+<h2 id="7-haufige-probleme">7. Häufige Probleme<a class="headerlink" href="#7-haufige-probleme" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Ursache / Lösung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kamera reagiert nicht mehr</td>
+<td><strong>Zu viele CGI-Requests</strong> → Kamera friert ein. Abwarten (2–5 min) oder Stromunterbrechung. Immer 0.6 s Schritt-Intervall lassen.</td>
+</tr>
+<tr>
+<td>Video ruckelt</td>
+<td>CGI-Steps blockierten die Schleife → seit <code>PtzWorker</code> (eigener Thread) behoben.</td>
+</tr>
+<tr>
+<td>Kasten wird mal größer, mal kleiner</td>
+<td>trat mit DeepSort auf → seit EMA-geglättetem <strong>HOG-Detektor</strong> behoben.</td>
+</tr>
+<tr>
+<td>Person wird nicht getrackt</td>
+<td>Konfidenz-Schwelle (<code>CONF</code>) prüfen, Person muss groß genug im Bild sein.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="8-verwandte-dateien">8. Verwandte Dateien<a class="headerlink" href="#8-verwandte-dateien" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>auto_track/auto_scan_track_cgi.py</code> — Hauptskript Scan+Track</li>
+<li><code>auto_track/scanning.py</code> — Detektoren, Kamera, PTZ-Controller</li>
+<li><code>auto_track/sim_ptz_test.py</code> — Simulation + Videoaufnahme</li>
+<li><code>auto_track/jahongir_ov/</code> — OpenVINO-IR des Personenmodells</li>
+<li><code>auto_track/yolov8_human/</code> — trainiertes YOLOv8-Modell + Architektur</li>
+<li><code>docs/bilder/gesichts_netzwerk.svg</code> — neuronale-Netz-Visualisierung
+  (Gesichtserkennung)</li>
+<li><code>docs/simulationen/</code> — Videoaufnahmen der Simulationen</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Zurück zum Seitenanfang
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      &copy; 2026 UtutCam
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "In Zwischenablage kopiert", "clipboard.copy": "In Zwischenablage kopieren", "search.result.more.one": "1 weiteres Suchergebnis auf dieser Seite", "search.result.more.other": "# weitere Suchergebnisse auf dieser Seite", "search.result.none": "Keine Suchergebnisse", "search.result.one": "1 Suchergebnis", "search.result.other": "# Suchergebnisse", "search.result.placeholder": "Suchbegriff eingeben", "search.result.term.missing": "Es fehlt", "select.version": "Version ausw\u00e4hlen"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
