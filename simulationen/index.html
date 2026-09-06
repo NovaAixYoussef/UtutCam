@@ -1379,8 +1379,8 @@ jederzeit neu generiert werden können.</p>
 <tr>
 <td><a href="web_app_simulation.mp4">Web-App</a></td>
 <td>Web-App</td>
-<td>Dashboard-Mockup mit Waffen-Alarm</td>
-<td>~7 s</td>
+<td>echte Screenshots aller Seiten (Playwright + Chrome), sanft gescrollt</td>
+<td>~32 s</td>
 </tr>
 <tr>
 <td><a href="auto_track_simulation.mp4">Auto Track</a></td>
@@ -1429,6 +1429,11 @@ Verdachts-Banner bei echten Treffern (Protokoll:
 </div>
 
 <h3 id="web-app">Web-App<a class="headerlink" href="#web-app" title="Permanent link">&para;</a></h3>
+<p>Echte Screenshots jeder Web-App-Seite (Übersicht, Auto-Track, Waffen, Dieb,
+Gesicht, Fahndung, Face-Manager, Einstellungen): <code>make_simulations.py</code>
+startet die Flask-App lokal, photographiert die Seiten mit Playwright (Chrome)
+und setzt sie mit sanften Scroll-/Crossfade-Übergängen zu einem Video
+zusammen.</p>
 <div class="sim-player">
   <video controls preload="metadata" muted>
     <source src="web_app_simulation.mp4" type="video/mp4">

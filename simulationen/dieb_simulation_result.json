@@ -5,14 +5,12 @@
   "dauer_sek": 32.0,
   "aufloesung": "474x360",
   "conf": 0.25,
-  "loitering_threshold": 2.0,
+  "loitering_threshold": 3.0,
   "gesture_frames_threshold": 8,
   "verdaechtige": [
-    "3",
     "5"
   ],
   "alerts": [
-    "Frame 489: Unbekannte Person wurde gefunden wie er klaut!\nID: 3",
-    "Frame 583: Unbekannte Person wurde gefunden wie er klaut!\nID: 5"
+    "Frame 604: Unbekannte Person wurde gefunden wie er klaut!\nID: 5"
   ]
 }

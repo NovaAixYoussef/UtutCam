@@ -5,7 +5,7 @@
 Erzeugt in docs/simulationen/:
     gesicht_simulation.mp4     Gesichtserkennung gegen faces.json (Elon Musk, InsightFace)
     fahndung_simulation.mp4    Live-Match gegen Bundespolizei-DB (InsightFace)
-    web_app_simulation.mp4     Dashboard-Mockup-Animation
+    web_app_simulation.mp4     Web-App: echte Seiten-Screenshots (Playwright)
     dieb_simulation.mp4        Dieb-Erkennung: echter Pose-Detektor (COCO-17-Keypoints
                                + Loitering + Gesten) auf der vorhandenen
                                Aufnahme dieb_erkennung/output/vid_dieb_guard.mp4
@@ -22,6 +22,11 @@ import json
 import math
 import os
 import random
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
 from collections import defaultdict
 
 import cv2
@@ -44,6 +49,30 @@ _bg = (245, 248, 251)
 
 def _sec(t: float) -> int:
     return int(round(t * FPS))
+
+
+def _to_h264(path: str) -> None:
+    """mp4v (MPEG-4 Part 2) kann ein Browser nicht abspielen - er braucht
+    H.264 (avc1). Re-encode daher nach dem Schreiben per gebuendeltem ffmpeg
+    (imageio-ffmpeg), falls verfuegbar."""
+    try:
+        import imageio_ffmpeg
+    except Exception:                    # pragma: no cover
+        print(f"WARN: imageio-ffmpeg fehlt, {path} bleibt mp4v")
+        return
+    ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
+    with tempfile.TemporaryDirectory() as td:
+        tmp = os.path.join(td, os.path.basename(path) + ".h264.mp4")
+        cmd = [ffmpeg, "-y", "-i", path, "-c:v", "libx264", "-preset", "medium",
+               "-crf", "23", "-pix_fmt", "yuv420p", "-movflags", "+faststart",
+               "-an", tmp]
+        r = subprocess.run(cmd, capture_output=True, text=True)
+        if r.returncode != 0:            # pragma: no cover
+            print(f"WARN: ffmpeg-Reencode fehlgeschlagen fuer {path}")
+            print(r.stderr[-800:])
+            return
+        shutil.move(tmp, path)
+    print("  (re-encoded -> H.264/avc1)")
 
 
 def _load_fahndung_db(path=None):
@@ -118,17 +147,24 @@ def _face_box(face, img_w, img_h):
     return np.clip(l, 0, img_w), np.clip(t, 0, img_h), np.clip(r, 0, img_w), np.clip(b, 0, img_h)
 
 
+def _cover_box(img, x0, y0, w, h, title, fill=(255, 255, 255),
+               border=(213, 223, 231), title_col=(36, 59, 83)):
+    """Minimalistischer Karte-Kasten mit Titel ueber der Box."""
+    cv2.rectangle(img, (x0, y0), (x0 + w, y0 + h), fill, -1)
+    cv2.rectangle(img, (x0, y0), (x0 + w, y0 + h), border, 2)
+    cv2.putText(img, title, (x0 + 16, y0 - 10),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.55, title_col, 1, cv2.LINE_AA)
+
+
 def _draw_overlay(img, entries, scores, highlight):
-    """Groesse die Eingangsboxen sinnvoll und zeichnet Score-Balken-Liste."""
-    cv2.putText(img, "MATCH-ANALYSE", (30, 40),
+    """Minimalistische Match-Liste mit Score-Balken (kein Flicker)."""
+    cv2.putText(img, "Vergleich gegen faces.json", (30, 40),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36, 59, 83), 2, cv2.LINE_AA)
     x, y0 = 30, 80
     for idx, (entry, score) in enumerate(zip(entries, scores)):
         bar_x, bar_max = x + 260, 620
         fill = int(round(score * bar_max))
-        col = (90, 184, 138) if score < 0.35 else (108, 123, 217)
-        if idx == highlight:
-            col = (108, 123, 217)
+        col = (108, 123, 217) if score >= 0.40 else (160, 175, 187)
         cv2.rectangle(img, (x, y0 + idx * 36), (x + bar_max, y0 + idx * 36 + 22), (213, 223, 231), 1)
         cv2.rectangle(img, (x, y0 + idx * 36), (x + fill, y0 + idx * 36 + 22), col, -1)
         cv2.putText(img, f"{score:.2f}", (x + bar_max + 12, y0 + idx * 36 + 17),
@@ -136,12 +172,6 @@ def _draw_overlay(img, entries, scores, highlight):
         name = entry["title"][:34]
         cv2.putText(img, name, (x, y0 + idx * 36 - 6),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.45, (92, 112, 128), 1, cv2.LINE_AA)
-
-
-def _fill_marker(img, cx, cy, t):
-    """animierter Scan-Punkt auf dem Live-Bild."""
-    r = 8 + int(4 * math.sin(t * 6))
-    cv2.circle(img, (cx, cy), r, (217, 123, 108), 2)
 
 
 def make_gesicht_simulation(out_path):
@@ -175,42 +205,40 @@ def make_gesicht_simulation(out_path):
 
     bg = np.full((H, W, 3), _bg, np.uint8)
     l, t, r, b = _face_box(face, img_w, img_h)
-    gx, gy = (l + r) // 2, (t + b) // 2
 
     for i in range(_sec(0.5)):
         writer.write(bg)
 
-    # --- Phase 1: Foto mit erkanntem Gesicht ---
-    for i in range(_sec(4.0)):
-        scale = 1.0 + 0.06 * math.sin(i / _sec(1.0) * 2 * math.pi)
-        overlay = img.copy()
-        cx, cy = (l + r) // 2, (t + b) // 2
-        w2, h2 = int((r - l) * 0.55 * scale), int((b - t) * 0.9 * scale)
-        cv2.rectangle(overlay, (cx - w2, cy - h2), (cx + w2, cy + h2),
-                      (90, 184, 138), 3)
-        cv2.putText(overlay, "Gesicht erkannt", (cx - w2, cy - h2 - 14),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (90, 184, 138), 2, cv2.LINE_AA)
-        cv2.putText(overlay, "112x112x3 -> Embedding 512-dim", (28, H - 28),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (92, 112, 128), 1, cv2.LINE_AA)
+    # --- Phase 1: Foto mit erkanntem Gesicht (statisch, minimal) ---
+    overlay = img.copy()
+    cv2.rectangle(overlay, (l, t), (r, b), (90, 184, 138), 2)
+    cv2.putText(overlay, "Gesicht erkannt", (l, max(20, t - 12)),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (90, 184, 138), 2, cv2.LINE_AA)
 
+    hh, ww = overlay.shape[:2]
+    ratio = min(560 / ww, 340 / hh)
+    small = cv2.resize(overlay, (int(ww * ratio), int(hh * ratio)))
+    x0, y0 = 40, (H - small.shape[0]) // 2 - 20
+
+    for i in range(_sec(4.0)):
         widget = bg.copy()
-        hh, ww = overlay.shape[:2]
-        ratio = min(560 / ww, 340 / hh)
-        small = cv2.resize(overlay, (int(ww * ratio), int(hh * ratio)))
-        x0, y0 = 40, (H - small.shape[0]) // 2
-        widget[y0:y0 + small.shape[0], x0:x0 + small.shape[1]] = small
+        cv2.putText(widget, "GESICHTSERKENNUNG", (30, 44),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36, 59, 83), 2, cv2.LINE_AA)
+        cv2.putText(widget, "Kamera-Person", (x0, y0 - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (36, 59, 83), 1, cv2.LINE_AA)
         cv2.rectangle(widget, (x0, y0),
                       (x0 + small.shape[1], y0 + small.shape[0]),
                       (213, 223, 231), 2)
-        _fill_marker(widget, x0 + 60, y0 + 60, i / FPS)
-        cv2.putText(widget, "Kamera-Person", (x0, y0 + small.shape[0] + 24),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (36, 59, 83), 1, cv2.LINE_AA)
+        widget[y0:y0 + small.shape[0], x0:x0 + small.shape[1]] = small
+        cv2.putText(widget, "Embedding 512-dim  ->  Cosine-Vergleich",
+                    (x0, y0 + small.shape[0] + 28),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.55, (92, 112, 128), 1, cv2.LINE_AA)
         writer.write(widget)
 
-    # --- Phase 2: Vergleich gegen Gesichtsdatenbank ---
+    # --- Phase 2: Vergleich gegen Gesichtsdatenbank (minimal) ---
     for i in range(_sec(4.5)):
         widget = bg.copy()
-        cv2.putText(widget, "Cosine-Vergleich gegen faces.json", (30, 40),
+        cv2.putText(widget, "Vergleich gegen faces.json", (30, 40),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.8, (36, 59, 83), 2, cv2.LINE_AA)
         prog = min(1.0, i / _sec(2.6))
         k = int(prog * len(scores))
@@ -218,19 +246,22 @@ def make_gesicht_simulation(out_path):
                       0 if prog >= 1 else -1)
         writer.write(widget)
 
-    # --- Phase 3: Ergebnis ---
+    # --- Phase 3: Ergebnis (minimale Karte) ---
     best = sample[0]
     best_score = scores[0]
     label = best["title"][:40] if best_score >= 0.40 else "Unbekannt"
     col = (108, 123, 217) if best_score >= 0.40 else (36, 59, 83)
+    cx0, cy0, cw, ch = W // 2 - 260, 210, 520, 180
     for i in range(_sec(3.0)):
         widget = bg.copy()
-        cv2.putText(widget, "ERGEBNIS", (W // 2 - 120, 180),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36, 59, 83), 2, cv2.LINE_AA)
-        cv2.putText(widget, label, (W // 2 - 260, 300),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1.3, col, 3, cv2.LINE_AA)
-        cv2.putText(widget, f"Score: {best_score:.2f}", (W // 2 - 120, 380),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1.0, col, 2, cv2.LINE_AA)
+        cv2.rectangle(widget, (cx0, cy0), (cx0 + cw, cy0 + ch), (255, 255, 255), -1)
+        cv2.rectangle(widget, (cx0, cy0), (cx0 + cw, cy0 + ch), (213, 223, 231), 2)
+        cv2.putText(widget, "ERGEBNIS", (cx0 + 24, cy0 + 40),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (92, 112, 128), 1, cv2.LINE_AA)
+        cv2.putText(widget, label, (cx0 + 24, cy0 + 110),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1.2, col, 2, cv2.LINE_AA)
+        cv2.putText(widget, f"Score: {best_score:.2f}", (cx0 + 24, cy0 + 160),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, col, 2, cv2.LINE_AA)
         writer.write(widget)
 
     for i in range(_sec(0.8)):
@@ -266,16 +297,17 @@ def make_fahndung_simulation(out_path):
     # Phase 1: Live-Kamera + Fahndungs-Liste lädt
     for i in range(_sec(3.5)):
         widget = bg.copy()
+        cv2.putText(widget, "FAHNDUNG", (30, 44),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36, 59, 83), 2, cv2.LINE_AA)
         hh, ww = img.shape[:2]
         ratio = min(400 / ww, 340 / hh)
         small = cv2.resize(img, (int(ww * ratio), int(hh * ratio)))
-        x0, y0 = 40, 130
-        widget[y0:y0 + small.shape[0], x0:x0 + small.shape[1]] = small
+        x0, y0 = 40, 120
+        cv2.putText(widget, "Kamera-Person", (x0, y0 - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (36, 59, 83), 1, cv2.LINE_AA)
         cv2.rectangle(widget, (x0, y0), (x0 + small.shape[1], y0 + small.shape[0]),
                       (90, 184, 138), 2)
-        _fill_marker(widget, x0 + 60, y0 + 60, i / FPS)
-        cv2.putText(widget, "LIVE-KAMERA", (x0, y0 - 16),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (90, 184, 138), 2, cv2.LINE_AA)
+        widget[y0:y0 + small.shape[0], x0:x0 + small.shape[1]] = small
 
         cv2.putText(widget, "fahndungen.json", (W - 600, 40),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.8, (36, 59, 83), 2, cv2.LINE_AA)
@@ -294,17 +326,20 @@ def make_fahndung_simulation(out_path):
     # Phase 2: Treffer-Meldung
     best = db_sorted[0]
     best_score = scores[0]
+    cx0, cy0, cw, ch = W // 2 - 320, 180, 640, 240
     for i in range(_sec(4.5)):
         widget = bg.copy()
-        cv2.putText(widget, "FAHNDUNGS-TREFFER!", (W // 2 - 320, 160),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1.3, (217, 123, 108), 3, cv2.LINE_AA)
-        cv2.putText(widget, best["title"][:60], (W // 2 - 320, 250),
+        cv2.rectangle(widget, (cx0, cy0), (cx0 + cw, cy0 + ch), (255, 255, 255), -1)
+        cv2.rectangle(widget, (cx0, cy0), (cx0 + cw, cy0 + ch), (217, 123, 108), 2)
+        cv2.putText(widget, "FAHNDUNGS-TREFFER", (cx0 + 24, cy0 + 48),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1.1, (217, 123, 108), 2, cv2.LINE_AA)
+        cv2.putText(widget, best["title"][:60], (cx0 + 24, cy0 + 120),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36, 59, 83), 2, cv2.LINE_AA)
         cv2.putText(widget, f"Cosine-Score: {best_score:.2f}  (>= 0.35)",
-                    (W // 2 - 320, 320),
+                    (cx0 + 24, cy0 + 180),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.8, (36, 59, 83), 2, cv2.LINE_AA)
         cv2.putText(widget, "Screenshot gespeichert  |  Telegram-Alarm versendet",
-                    (W // 2 - 320, 400),
+                    (cx0 + 24, cy0 + 224),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (92, 112, 128), 1, cv2.LINE_AA)
         writer.write(widget)
 
@@ -334,7 +369,7 @@ def make_dieb_simulation(out_path, source_video=None):
     if not os.path.exists(src):
         raise SystemExit(f"Dieb-Quellvideo fehlt: {src}")
 
-    det = ShopliftingPoseDetector(conf=0.25, loitering_threshold=2.0,
+    det = ShopliftingPoseDetector(conf=0.25, loitering_threshold=3.0,
                                   gesture_frames_threshold=8, face_check=False)
     cap = cv2.VideoCapture(src)
     fps = cap.get(cv2.CAP_PROP_FPS) or 25.0
@@ -392,87 +427,150 @@ def make_dieb_simulation(out_path, source_video=None):
     print("      PROTOKOLL:", dbg)
 
 
+def _web_shots(out_dir, pages=None, width=1440, height=900, port=5199):
+    """Startet die echte Web-App (Flask) und macht Vollbild-Screenshots."""
+    import urllib.request
+    import subprocess
+
+    pages = pages or ["/", "/auto_track", "/waffen", "/dieb", "/gesicht",
+                      "/Fahndung", "/faces", "/einstellungen"]
+    server = subprocess.Popen(
+        [sys.executable, os.path.join(ROOT, "web_app", "server.py"),
+         "--no-webcam", "--port", str(port)],
+        cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    try:
+        for _ in range(120):
+            try:
+                urllib.request.urlopen(f"http://127.0.0.1:{port}/", timeout=2)
+                break
+            except Exception:
+                time.sleep(0.5)
+        else:
+            raise SystemExit(f"Web-App konnte auf Port {port} nicht starten")
+
+        from playwright.sync_api import sync_playwright
+        chrome = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
+        if not os.path.exists(chrome):
+            raise SystemExit("Chrome nicht gefunden (fuer Web-App-Screenshots)")
+
+        with sync_playwright() as pw:
+            browser = pw.chromium.launch(
+                executable_path=chrome, headless=True,
+                args=["--no-sandbox", "--disable-gpu"])
+            page = browser.new_page(viewport={"width": width, "height": height})
+            shot_paths = []
+            for p in pages:
+                try:
+                    page.goto(f"http://127.0.0.1:{port}{p}",
+                              wait_until="domcontentloaded", timeout=20000)
+                    page.wait_for_timeout(1500)
+                except Exception as e:
+                    print("WARN: Seite nicht geladen:", p, str(e)[:100])
+                    continue
+                name = ("index" if p == "/" else p.strip("/").replace("/", "_"))
+                out = os.path.join(out_dir, name + ".png")
+                page.screenshot(path=out, full_page=True)
+                shot_paths.append(out)
+                print("  webapp shot:", name)
+            browser.close()
+    finally:
+        server.terminate()
+        try:
+            server.wait(timeout=5)
+        except Exception:
+            server.kill()
+    return shot_paths
+
+
+def _pan_frames(img, dur, ease_sec=1.0):
+    """Sanftes Hoch-/Runterscrollen durch ein hohes Seiten-Screenshot.
+
+    img kann hoeher als H sein (FullPage-Screenshot); wir fahren kontinuierlich
+    von oben nach unten und wechseln nach `dur` Sekunden zur naechsten Seite.
+    """
+    h, w = img.shape[:2]
+    scale = max(W / w, H / h)
+    nw, nh = int(w * scale), int(h * scale)
+    big = cv2.resize(img, (nw, nh))
+    x0 = (nw - W) // 2
+    y_max = max(0, nh - H)
+    n = int(dur * FPS)
+    frames = []
+    hold = max(4, int(ease_sec * FPS))
+    for i in range(n + hold):
+        prog = min(1.0, i / max(1, n))
+        ease = prog if y_max == 0 else prog * prog * (3 - 2 * prog)
+        y0 = int(ease * y_max)
+        frames.append(big[y0:y0 + H, x0:x0 + W].copy())
+    return frames
+
+
+def _crossfade(a, b, n):
+    out = []
+    for i in range(n):
+        t = (i + 1) / (n + 1)
+        out.append(cv2.addWeighted(a, 1 - t, b, t, 0))
+    return out
+
+
 def make_web_app_simulation(out_path):
-    writer = cv2.VideoWriter(out_path, cv2.VideoWriter_fourcc(*"mp4v"), FPS, (W, H))
-    bg = np.full((H, W, 3), _bg, np.uint8)
-    workers = [("DiebWorker", "Shoplifting"), ("WaffenWorker", "Gun / Hand / Messer"),
-               ("GesichtWorker", "452 Gesichter DB"), ("FahndungWorker", "124 Fahndungen"),
-               ("TrackWorker", "PTZ aktiv")]
-    N = len(workers)
-    cols = [(108, 123, 217), (217, 123, 108), (90, 184, 138),
-            (90, 184, 138), (90, 184, 138)]
+    """Web-App-Simulation aus ECHTEN Screenshots der laufenden App.
 
-    # HEADER + Seitenleiste
-    for i in range(_sec(6.0)):
-        frame = bg.copy()
-        cv2.rectangle(frame, (0, 0), (W, 74), (36, 59, 83), -1)
-        cv2.putText(frame, "UtutCam  -  Dashboard", (24, 48),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2, cv2.LINE_AA)
-        cv2.putText(frame, "http://localhost:5000", (W - 420, 48),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.55, (213, 223, 231), 1, cv2.LINE_AA)
+    Startet serverseitig die Flask-App und photographiert jede Seite mit
+    Playwright (Chrome). Das Video scrollt sanft durch jede Seite und blendet
+    per Crossfade zur Naechsten ueber.
+    """
+    with tempfile.TemporaryDirectory() as td:
+        shots = _web_shots(td)
+        if not shots:
+            raise SystemExit("keine Web-App-Screenshots erstellt")
 
-        cv2.rectangle(frame, (0, 74), (240, H), (226, 232, 238), -1)
-        pages = ["übersicht", "auto_track", "Waffen", "Dieb", "Gesicht",
-                 "Fahndung", "Einstellungen"]
-        for j, p in enumerate(pages):
-            y = 100 + j * 62
-            col = (36, 59, 83)
-            if j == 2:
-                col = (217, 123, 108)
-            cv2.putText(frame, "• " + p, (24, y),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.65, col, 1, cv2.LINE_AA)
+        writer = cv2.VideoWriter(out_path, cv2.VideoWriter_fourcc(*"mp4v"),
+                                 FPS, (W, H))
+        if not writer.isOpened():
+            raise SystemExit(f"VideoWriter konnte {out_path} nicht oeffnen")
 
-        x0, y0 = 280, 100
-        cv2.rectangle(frame, (x0, y0), (W - 20, y0 + 300), (255, 255, 255), -1)
-        cv2.rectangle(frame, (x0, y0), (W - 20, y0 + 300), (213, 223, 231), 2)
-        cv2.putText(frame, "LIVE-VIDEO  (MJPEG  /api/stream)", (x0 + 16, y0 + 32),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (36, 59, 83), 2, cv2.LINE_AA)
-        n_lines = 4
-        for k in range(n_lines):
-            lx = x0 + 40 + (i * 9) % (W - x0 - 80)
-            cv2.line(frame, (lx, y0 + 60 + k * 28), (lx + 90 + k * 25, y0 + 60 + k * 28),
-                     (213, 223, 231), 2)
-        _fill_marker(frame, x0 + 60, y0 + 70, i / FPS)
-
-        # Worker-Karten
-        for j, (name, desc) in enumerate(workers):
-            wx = x0 + (j % 3) * 210
-            wy = y0 + 340 + (j // 3) * 130
-            on = i / FPS > 0.8 * (j + 1)
-            col = (90, 184, 138) if on else (160, 175, 187)
-            cv2.rectangle(frame, (wx, wy), (wx + 190, wy + 100), (255, 255, 255), -1)
-            cv2.rectangle(frame, (wx, wy), (wx + 190, wy + 100), (213, 223, 231), 2)
-            cv2.circle(frame, (wx + 24, wy + 26), 8, col, -1)
-            cv2.putText(frame, name, (wx + 42, wy + 32),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.55, (36, 59, 83), 1, cv2.LINE_AA)
-            cv2.putText(frame, desc, (wx + 12, wy + 72),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.42, (92, 112, 128), 1, cv2.LINE_AA)
-            cv2.putText(frame, "AKTIV" if on else "STOP", (wx + 140, wy + 30),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.45, col, 1, cv2.LINE_AA)
-
-        t = i / FPS
-        if 3.2 < t < 5.0:
-            cv2.rectangle(frame, (W - 470, 470), (W - 40, 520), (217, 123, 108), -1)
-            cv2.putText(frame, "WARNUNG: Waffe erkannt  conf 0.83", (W - 450, 500),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1, cv2.LINE_AA)
-        writer.write(frame)
-
-    for i in range(_sec(0.8)):
-        writer.write(bg)
-    writer.release()
+        first = True
+        prev = None
+        dur_each = 3.4
+        for idx, shot in enumerate(shots):
+            img = cv2.imread(shot)
+            if img is None:
+                continue
+            frames = _pan_frames(img, dur_each)
+            if prev is not None:
+                for f in _crossfade(prev, frames[0], _sec(0.6)):
+                    writer.write(f)
+            for f in frames:
+                writer.write(f)
+            prev = frames[-1]
+            print(f"  webapp: {os.path.basename(shot)} "
+                  f"({len(frames)} Frames)")
+        if prev is not None:
+            for i in range(_sec(0.8)):
+                writer.write(prev)
+        writer.release()
     print("web_app:", out_path, os.path.getsize(out_path) // 1024, "KB")
 
 
 def main() -> int:
     os.makedirs(SIMDIR, exist_ok=True)
-    make_gesicht_simulation(os.path.join(SIMDIR, "gesicht_simulation.mp4"))
-    make_fahndung_simulation(os.path.join(SIMDIR, "fahndung_simulation.mp4"))
-    make_web_app_simulation(os.path.join(SIMDIR, "web_app_simulation.mp4"))
+    gesicht_path = os.path.join(SIMDIR, "gesicht_simulation.mp4")
+    fahndung_path = os.path.join(SIMDIR, "fahndung_simulation.mp4")
+    webapp_path = os.path.join(SIMDIR, "web_app_simulation.mp4")
+    dieb_path = os.path.join(SIMDIR, "dieb_simulation.mp4")
 
-    dieb_dst = os.path.join(SIMDIR, "dieb_simulation.mp4")
-    if os.path.exists(dieb_dst):
-        os.remove(dieb_dst)
-    make_dieb_simulation(dieb_dst)
+    make_gesicht_simulation(gesicht_path)
+    _to_h264(gesicht_path)
+    make_fahndung_simulation(fahndung_path)
+    _to_h264(fahndung_path)
+    make_web_app_simulation(webapp_path)
+    _to_h264(webapp_path)
+
+    if os.path.exists(dieb_path):
+        os.remove(dieb_path)
+    make_dieb_simulation(dieb_path)
+    _to_h264(dieb_path)
     return 0
 
 

@@ -58,7 +58,7 @@ def waffen():
          "x": 0.42, "y": 0.45, "w": 0.13, "h": 0.26},
         {"id": 3, "label": "Zielklasse?", "sub": "gun / knife / hand", "color": "orange",
          "x": 0.59, "y": 0.45, "w": 0.14, "h": 0.36},
-        {"id": 4, "label": "Hand ueber Waffe?", "sub": "hand_cover >= 0.70", "color": "orange",
+        {"id": 4, "label": "Hand ueber Waffe?", "sub": "hand_cover >= 0.35", "color": "orange",
          "x": 0.755, "y": 0.45, "w": 0.14, "h": 0.36},
         {"id": 5, "label": "Box + Label", "sub": "orangener Kasten\ngun 0.83", "color": "gruen",
          "x": 0.90, "y": 0.67, "w": 0.11, "h": 0.32},
@@ -69,7 +69,7 @@ def waffen():
     ]
     arrows = [(0, 1), (1, 2), (2, 3, ">= 0.25"),
               (3, 4, "gun / knife"), (3, 7, "hand"),
-              (4, 5, "< 0.70\nWaffe echt"), (4, 6, ">= 0.70\nHand deckt ab")]
+              (4, 5, "< 0.35\nWaffe echt"), (4, 6, ">= 0.35\nHand deckt ab")]
     return visualize_flow(
         boxes, arrows,
         output_path=os.path.join(BILDER, "waffen_ablauf.png"),
