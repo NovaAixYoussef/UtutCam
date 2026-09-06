@@ -735,10 +735,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#22-daten-manuell-aktualisieren" class="md-nav__link">
+  <a href="#22-live-match-auf-der-webcam-mit-gesichtserkennung" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.2 Daten manuell aktualisieren
+        2.2 Live-Match auf der Webcam (mit Gesichtserkennung)
       
     </span>
   </a>
@@ -746,10 +746,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#23-selbsttest" class="md-nav__link">
+  <a href="#23-daten-manuell-aktualisieren" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.3 Selbsttest
+        2.3 Daten manuell aktualisieren
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-selbsttest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Selbsttest
       
     </span>
   </a>
@@ -1263,10 +1274,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#22-daten-manuell-aktualisieren" class="md-nav__link">
+  <a href="#22-live-match-auf-der-webcam-mit-gesichtserkennung" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.2 Daten manuell aktualisieren
+        2.2 Live-Match auf der Webcam (mit Gesichtserkennung)
       
     </span>
   </a>
@@ -1274,10 +1285,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#23-selbsttest" class="md-nav__link">
+  <a href="#23-daten-manuell-aktualisieren" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.3 Selbsttest
+        2.3 Daten manuell aktualisieren
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-selbsttest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Selbsttest
       
     </span>
   </a>
@@ -1396,14 +1418,21 @@ Fahndungs-Vektoren verglichen, bis der Treffer (Score ≥ 0.35) angezeigt wird.<
 </code></pre></div>
 <p>Browser: <code>http://localhost:5000</code> → Seite <code>Fahndung</code>. Der <code>FahndungWorker</code>
 läuft im Hintergrund.</p>
-<h3 id="22-daten-manuell-aktualisieren">2.2 Daten manuell aktualisieren<a class="headerlink" href="#22-daten-manuell-aktualisieren" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">youss</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Local</span><span class="p">\</span><span class="n">Python</span><span class="p">\</span><span class="n">pythoncore</span><span class="p">-</span><span class="n">3</span><span class="p">.</span><span class="n">14</span><span class="p">-</span><span class="n">64</span><span class="p">\</span><span class="n">python</span><span class="p">.</span><span class="n">exe</span> <span class="n">-c</span> <span class="s2">&quot;from fahndung import fahndung_downloader as f; f.refresh_fahndungen()&quot;</span>
+<h3 id="22-live-match-auf-der-webcam-mit-gesichtserkennung">2.2 Live-Match auf der Webcam (mit Gesichtserkennung)<a class="headerlink" href="#22-live-match-auf-der-webcam-mit-gesichtserkennung" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">cd </span><span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">youss</span><span class="p">\</span><span class="n">Desktop</span><span class="p">\</span><span class="n">UtutCam</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">youss</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Local</span><span class="p">\</span><span class="n">Python</span><span class="p">\</span><span class="n">pythoncore</span><span class="p">-</span><span class="n">3</span><span class="p">.</span><span class="n">14</span><span class="p">-</span><span class="n">64</span><span class="p">\</span><span class="n">python</span><span class="p">.</span><span class="n">exe</span> <span class="n">messer_erkennung</span><span class="p">\</span><span class="n">live_all</span><span class="p">.</span><span class="n">py</span>
+</code></pre></div>
+<p>Im Fenster <code>Gesicht + Fahndung</code> wird jedes Kamera-Gesicht live gegen
+<code>fahndungen.json</code> geprüft und bei Score ≥ 0.35 als <strong>GESUCHT</strong> markiert.
+<code>q</code> beendet.</p>
+<h3 id="23-daten-manuell-aktualisieren">2.3 Daten manuell aktualisieren<a class="headerlink" href="#23-daten-manuell-aktualisieren" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">youss</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Local</span><span class="p">\</span><span class="n">Python</span><span class="p">\</span><span class="n">pythoncore</span><span class="p">-</span><span class="n">3</span><span class="p">.</span><span class="n">14</span><span class="p">-</span><span class="n">64</span><span class="p">\</span><span class="n">python</span><span class="p">.</span><span class="n">exe</span> <span class="n">-c</span> <span class="s2">&quot;from fahndung import fahndung_downloader as f; f.refresh_fahndungen()&quot;</span>
 </code></pre></div>
 <blockquote>
 <p>Internetverbindung erforderlich (bundespolizei.de).</p>
 </blockquote>
-<h3 id="23-selbsttest">2.3 Selbsttest<a class="headerlink" href="#23-selbsttest" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">python</span> <span class="o">-</span><span class="n">c</span> <span class="s2">&quot;from messer_erkennung.UtutCam import run_fahndung_test; run_fahndung_test()&quot;</span>
+<h3 id="24-selbsttest">2.4 Selbsttest<a class="headerlink" href="#24-selbsttest" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">python</span> <span class="o">-</span><span class="n">c</span> <span class="s2">&quot;from messer_erkennung.UtutCam import run_fahndung_test; run_fahndung_test()&quot;</span>
 </code></pre></div>
 <h2 id="3-wie-es-funktioniert">3. Wie es funktioniert<a class="headerlink" href="#3-wie-es-funktioniert" title="Permanent link">&para;</a></h2>
 <p>Die Kernfunktionen liegen in <code>fahndung/fahndung_downloader.py</code>:</p>
@@ -1453,9 +1482,9 @@ läuft im Hintergrund.</p>
    Cosinus-Ähnlichkeit verglichen. Treffer ≥ <code>MATCH_THRESHOLD (0.35)</code> → Alarm.</li>
 </ol>
 <h2 id="4-datenstruktur">4. Datenstruktur<a class="headerlink" href="#4-datenstruktur" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>data/fahndung/
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>├── fahndungen.json    # Metadaten + 512-dim Embeddings aller Fahndungen
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>└── bilder/            # heruntergeladene Fahndungsfotos
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>data/fahndung/
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>├── fahndungen.json    # Metadaten + 512-dim Embeddings aller Fahndungen
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>└── bilder/            # heruntergeladene Fahndungsfotos
 </code></pre></div>
 <p><code>data/fahndung/generate_galerie.py</code> erstellt aus den Daten eine
 <strong>statische HTML-Galerie</strong> (<code>fahndungen_galerie.html</code>) zur Vorschau.</p>

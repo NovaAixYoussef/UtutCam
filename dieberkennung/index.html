@@ -707,10 +707,32 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#22-einzelmodul-testen-python-api" class="md-nav__link">
+  <a href="#22-einzelmodul-auf-der-webcam-starten" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.2 Einzelmodul testen (Python-API)
+        2.2 Einzelmodul auf der Webcam starten
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-einzelmodul-testen-python-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Einzelmodul testen (Python-API)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-video-verarbeiten" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Video verarbeiten
       
     </span>
   </a>
@@ -1280,10 +1302,32 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#22-einzelmodul-testen-python-api" class="md-nav__link">
+  <a href="#22-einzelmodul-auf-der-webcam-starten" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.2 Einzelmodul testen (Python-API)
+        2.2 Einzelmodul auf der Webcam starten
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-einzelmodul-testen-python-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Einzelmodul testen (Python-API)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-video-verarbeiten" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Video verarbeiten
       
     </span>
   </a>
@@ -1410,9 +1454,12 @@ abdecken, Kasse anfassen) bewertet.</p>
 </code></pre></div>
 <p><img alt="Dieberkennung Ablauf" src="../bilder/dieb_ablauf.png" /></p>
 <p><strong>Simulation:</strong> <a href="../simulationen/dieb_simulation.mp4"><code>dieb_simulation.mp4</code></a>
-(32 s) — echte Aufnahme aus <code>dieb_erkennung/output/</code>: eine Person, die lange an
-einem Ort verweilt, wird über <strong>Loitering</strong> erkannt und als Verdächtiger
-(Loitering-Kasten) markiert.</p>
+(32 s) — <strong>mit dem echten Pose-Code</strong> erzeugt: <code>pose_detector.py</code> (COCO-17-
+Keypoints + Loitering + Gesten) verarbeitet die vorhandene Aufnahme
+<code>dieb_erkennung/output/vid_dieb_guard.mp4</code> (kein Neues Video, keine Fake-
+Animation). Zu sehen: grünes <strong>Keypoints-Skelett</strong> pro Person, grüne/lila
+<strong>Bounding-Boxen</strong> und das rote <strong>SHOPLIFTING-DETECTED-Banner</strong> bei echten
+Verdachts-Erkennungen (Protokoll: <code>simulationen/dieb_simulation_result.json</code>).</p>
 <div class="sim-player">
   <video controls preload="metadata" muted>
     <source src="simulationen/dieb_simulation.mp4" type="video/mp4">
@@ -1430,11 +1477,31 @@ einem Ort verweilt, wird über <strong>Loitering</strong> erkannt und als Verdä
 </code></pre></div>
 <p>Browser: <code>http://localhost:5000</code> → Seite <code>Dieb_Erkennung</code>. Der
 <code>DiebWorker</code>-Thread läuft dort automatisch.</p>
-<h3 id="22-einzelmodul-testen-python-api">2.2 Einzelmodul testen (Python-API)<a class="headerlink" href="#22-einzelmodul-testen-python-api" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">dieb_erkennung.detector</span><span class="w"> </span><span class="kn">import</span> <span class="n">ShopliftingDetector</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">det</span> <span class="o">=</span> <span class="n">ShopliftingDetector</span><span class="p">()</span>            <span class="c1"># Standard-Konfiguration</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">verdacht</span> <span class="o">=</span> <span class="n">det</span><span class="o">.</span><span class="n">detect_all</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>       <span class="c1"># verarbeitet einen Frame</span>
+<h3 id="22-einzelmodul-auf-der-webcam-starten">2.2 Einzelmodul auf der Webcam starten<a class="headerlink" href="#22-einzelmodul-auf-der-webcam-starten" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">cd </span><span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">youss</span><span class="p">\</span><span class="n">Desktop</span><span class="p">\</span><span class="n">UtutCam</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c"># 1) Loitering-Erkennung (UtutPerson + DeepSORT): grün → lila bei Verdacht</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">youss</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Local</span><span class="p">\</span><span class="n">Python</span><span class="p">\</span><span class="n">pythoncore</span><span class="p">-</span><span class="n">3</span><span class="p">.</span><span class="n">14</span><span class="p">-</span><span class="n">64</span><span class="p">\</span><span class="n">python</span><span class="p">.</span><span class="n">exe</span> <span class="n">dieb_erkennung</span><span class="p">\</span><span class="n">detector</span><span class="p">.</span><span class="n">py</span> <span class="p">-</span><span class="n">-webcam</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="c"># 2) Volle Erkennung mit Keypoints (COCO-17-Skelett + Loitering + Geste):</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">youss</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Local</span><span class="p">\</span><span class="n">Python</span><span class="p">\</span><span class="n">pythoncore</span><span class="p">-</span><span class="n">3</span><span class="p">.</span><span class="n">14</span><span class="p">-</span><span class="n">64</span><span class="p">\</span><span class="n">python</span><span class="p">.</span><span class="n">exe</span> <span class="n">dieb_erkennung</span><span class="p">\</span><span class="n">pose_detector</span><span class="p">.</span><span class="n">py</span> <span class="p">-</span><span class="n">-webcam</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="c"># 3) Komplett-Live-Skript (4 Fenster: Pistole | Messer | Gesicht+Fahndung | Dieb+Keypoints):</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">youss</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Local</span><span class="p">\</span><span class="n">Python</span><span class="p">\</span><span class="n">pythoncore</span><span class="p">-</span><span class="n">3</span><span class="p">.</span><span class="n">14</span><span class="p">-</span><span class="n">64</span><span class="p">\</span><span class="n">python</span><span class="p">.</span><span class="n">exe</span> <span class="n">messer_erkennung</span><span class="p">\</span><span class="n">live_all</span><span class="p">.</span><span class="n">py</span>
 </code></pre></div>
+<p>Jeweils <code>q</code> beendet das Fenster. Optional <code>--telegram</code> für
+Benachrichtigungen, <code>--no-face</code> schaltet den Gesichtsabgleich aus.</p>
+<h3 id="23-einzelmodul-testen-python-api">2.3 Einzelmodul testen (Python-API)<a class="headerlink" href="#23-einzelmodul-testen-python-api" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">dieb_erkennung.detector</span><span class="w"> </span><span class="kn">import</span> <span class="n">ShopliftingDetector</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">det</span> <span class="o">=</span> <span class="n">ShopliftingDetector</span><span class="p">()</span>            <span class="c1"># Standard-Konfiguration</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">verdacht</span> <span class="o">=</span> <span class="n">det</span><span class="o">.</span><span class="n">detect_all</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>       <span class="c1"># verarbeitet einen Frame</span>
+</code></pre></div>
+<h3 id="24-video-verarbeiten">2.4 Video verarbeiten<a class="headerlink" href="#24-video-verarbeiten" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">youss</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Local</span><span class="p">\</span><span class="n">Python</span><span class="p">\</span><span class="n">pythoncore</span><span class="p">-</span><span class="n">3</span><span class="p">.</span><span class="n">14</span><span class="p">-</span><span class="n">64</span><span class="p">\</span><span class="n">python</span><span class="p">.</span><span class="n">exe</span> <span class="n">dieb_erkennung</span><span class="p">\</span><span class="n">detector</span><span class="p">.</span><span class="n">py</span> <span class="n">dieb_erkennung</span><span class="p">\</span><span class="n">output</span><span class="p">\</span><span class="n">vid_dieb_guard</span><span class="p">.</span><span class="n">mp4</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">youss</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Local</span><span class="p">\</span><span class="n">Python</span><span class="p">\</span><span class="n">pythoncore</span><span class="p">-</span><span class="n">3</span><span class="p">.</span><span class="n">14</span><span class="p">-</span><span class="n">64</span><span class="p">\</span><span class="n">python</span><span class="p">.</span><span class="n">exe</span> <span class="n">dieb_erkennung</span><span class="p">\</span><span class="n">pose_detector</span><span class="p">.</span><span class="n">py</span> <span class="n">dieb_erkennung</span><span class="p">\</span><span class="n">output</span><span class="p">\</span><span class="n">vid_dieb_guard</span><span class="p">.</span><span class="n">mp4</span>
+</code></pre></div>
+<p>Das Ergebnis liegt in <code>dieb_erkennung/output/</code> (<code>*_dieb.mp4</code> bzw.
+<code>*_pose_dieb.mp4</code>).</p>
 <h2 id="3-wie-es-funktioniert">3. Wie es funktioniert<a class="headerlink" href="#3-wie-es-funktioniert" title="Permanent link">&para;</a></h2>
 <h3 id="31-shopliftingdetector-dieb_erkennungdetectorpy">3.1 <code>ShopliftingDetector</code> (<code>dieb_erkennung/detector.py</code>)<a class="headerlink" href="#31-shopliftingdetector-dieb_erkennungdetectorpy" title="Permanent link">&para;</a></h3>
 <p>Kernklasse mit folgenden Schritten pro Frame:</p>

@@ -6,9 +6,14 @@ Erzeugt in docs/simulationen/:
     gesicht_simulation.mp4     Gesichtserkennung gegen faces.json (Elon Musk, InsightFace)
     fahndung_simulation.mp4    Live-Match gegen Bundespolizei-DB (InsightFace)
     web_app_simulation.mp4     Dashboard-Mockup-Animation
+    dieb_simulation.mp4        Dieb-Erkennung: echter Pose-Detektor (COCO-17-Keypoints
+                               + Loitering + Gesten) auf der vorhandenen
+                               Aufnahme dieb_erkennung/output/vid_dieb_guard.mp4
 
-Alle Videos: 1280x720, 20 fps. Gesicht + Fahndung nutzen ECHTE Embeddings,
-die direkt hier berechnet werden (kein Fake-Score).
+Alle Videos: 1280x720 (Dieb: 1280-proportional), 20 fps. Gesicht + Fahndung
+nutzen ECHTE Embeddings, die direkt hier berechnet werden (kein Fake-Score).
+Die Dieb-Simulation laesst den ECHTEN Code aus `dieb_erkennung/pose_detector.py`
+ueber die bestehende Kameraaufnahme laufen (kein neues Video noetig).
 """
 
 from __future__ import annotations
@@ -17,6 +22,7 @@ import json
 import math
 import os
 import random
+from collections import defaultdict
 
 import cv2
 import numpy as np
@@ -308,6 +314,84 @@ def make_fahndung_simulation(out_path):
     print("fahndung:", out_path, os.path.getsize(out_path) // 1024, "KB")
 
 
+def make_dieb_simulation(out_path, source_video=None):
+    """Neue Dieb-Simulation MIT echtem Code: Der echte Pose-Detektor
+    (ShopliftingPoseDetector aus dieb_erkennung/pose_detector.py) verarbeitet
+    die vorhandene Kameraaufnahme und zeichnet dabei KEIN Fake-Mockup, sondern
+    die echten COCO-17-Keypoints, Loitering-/Gesten-Bewertung, Bounding-Boxen
+    und Verdachts-Banner.
+
+    source_video: vorhandene Aufnahme (Standard: dieb_erkennung/output/
+    vid_dieb_guard.mp4). Es wird KEIN neues Video aufgenommen.
+    """
+    import sys
+    if ROOT not in sys.path:
+        sys.path.insert(0, ROOT)
+    from dieb_erkennung.pose_detector import ShopliftingPoseDetector
+
+    src = source_video or os.path.join(ROOT, "dieb_erkennung", "output",
+                                       "vid_dieb_guard.mp4")
+    if not os.path.exists(src):
+        raise SystemExit(f"Dieb-Quellvideo fehlt: {src}")
+
+    det = ShopliftingPoseDetector(conf=0.25, loitering_threshold=2.0,
+                                  gesture_frames_threshold=8, face_check=False)
+    cap = cv2.VideoCapture(src)
+    fps = cap.get(cv2.CAP_PROP_FPS) or 25.0
+    sw = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    sh = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    scale = 1280.0 / sw if sw else 1.0
+    ow, oh = sw, sh
+    if scale > 1.0:
+        ow, oh = 1280, int(round(sh * scale))
+    cap.release()
+
+    writer = cv2.VideoWriter(out_path, cv2.VideoWriter_fourcc(*"mp4v"),
+                             fps, (ow, oh))
+    state = {"start": {}, "history": defaultdict(list), "sus": {},
+             "notified": {}, "gesture": {}, "kps": {}}
+    cap = cv2.VideoCapture(src)
+    total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    frame_count = 0
+    alert_log = []
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        frame_count += 1
+        t = frame_count / fps
+        processed, sus, alerts = det.process_frame(frame, state, t)
+        if scale != 1.0:
+            processed = cv2.resize(processed, (ow, oh),
+                                   interpolation=cv2.INTER_LINEAR)
+        for a in alerts:
+            msg = f"Frame {frame_count}: {a['message']}"
+            print("Dieb-Alarm", msg)
+            alert_log.append(msg)
+        writer.write(processed)
+        if frame_count % max(1, int(total / 20)) == 0:
+            print(f"  dieb: {frame_count}/{total}")
+    cap.release()
+    writer.release()
+    result = {
+        "quelle": os.path.basename(src),
+        "frames": frame_count,
+        "fps": fps,
+        "dauer_sek": frame_count / fps,
+        "aufloesung": f"{sw}x{sh}",
+        "conf": det.conf,
+        "loitering_threshold": det.loitering_threshold,
+        "gesture_frames_threshold": det.gesture_frames_threshold,
+        "verdaechtige": sorted(state["sus"].keys()),
+        "alerts": alert_log,
+    }
+    dbg = os.path.join(SIMDIR, "dieb_simulation_result.json")
+    json.dump(result, open(dbg, "w", encoding="utf-8"), ensure_ascii=False,
+              indent=2)
+    print("dieb:", out_path, os.path.getsize(out_path) // 1024, "KB")
+    print("      PROTOKOLL:", dbg)
+
+
 def make_web_app_simulation(out_path):
     writer = cv2.VideoWriter(out_path, cv2.VideoWriter_fourcc(*"mp4v"), FPS, (W, H))
     bg = np.full((H, W, 3), _bg, np.uint8)
@@ -384,6 +468,11 @@ def main() -> int:
     make_gesicht_simulation(os.path.join(SIMDIR, "gesicht_simulation.mp4"))
     make_fahndung_simulation(os.path.join(SIMDIR, "fahndung_simulation.mp4"))
     make_web_app_simulation(os.path.join(SIMDIR, "web_app_simulation.mp4"))
+
+    dieb_dst = os.path.join(SIMDIR, "dieb_simulation.mp4")
+    if os.path.exists(dieb_dst):
+        os.remove(dieb_dst)
+    make_dieb_simulation(dieb_dst)
     return 0
 
 

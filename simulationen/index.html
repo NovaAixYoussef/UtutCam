@@ -1373,7 +1373,7 @@ jederzeit neu generiert werden können.</p>
 <tr>
 <td><a href="dieb_simulation.mp4">Dieb</a></td>
 <td>Dieberkennung</td>
-<td>echte Loitering-Aufnahme</td>
+<td>echter Pose-Code (COCO-17-Keypoints + Loitering + Geste) auf <code>vid_dieb_guard.mp4</code></td>
 <td>~32 s</td>
 </tr>
 <tr>
@@ -1415,6 +1415,12 @@ jederzeit neu generiert werden können.</p>
 </div>
 
 <h3 id="dieberkennung">Dieberkennung<a class="headerlink" href="#dieberkennung" title="Permanent link">&para;</a></h3>
+<p>Mit dem <strong>echten Pose-Code</strong> (<code>dieb_erkennung/pose_detector.py</code>) wird die
+vorhandene Aufnahme <code>dieb_erkennung/output/vid_dieb_guard.mp4</code> verarbeitet —
+kein neues Video, keine Fake-Animation. Das Ergebnis zeigt das
+COCO-17-Keypoints-Skelett, Loitering-/Gestenbewertung und das rote
+Verdachts-Banner bei echten Treffern (Protokoll:
+<code>simulationen/dieb_simulation_result.json</code>).</p>
 <div class="sim-player">
   <video controls preload="metadata" muted>
     <source src="simulationen/dieb_simulation.mp4" type="video/mp4">
@@ -1494,12 +1500,14 @@ jederzeit neu generiert werden können.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">cd </span><span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">youss</span><span class="p">\</span><span class="n">Desktop</span><span class="p">\</span><span class="n">UtutCam</span><span class="p">\</span><span class="n">docs</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">youss</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Local</span><span class="p">\</span><span class="n">Python</span><span class="p">\</span><span class="n">pythoncore</span><span class="p">-</span><span class="n">3</span><span class="p">.</span><span class="n">14</span><span class="p">-</span><span class="n">64</span><span class="p">\</span><span class="n">python</span><span class="p">.</span><span class="n">exe</span> <span class="n">make_diagrams</span><span class="p">.</span><span class="n">py</span>      <span class="c"># Netzwerk-Diagramme</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">youss</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Local</span><span class="p">\</span><span class="n">Python</span><span class="p">\</span><span class="n">pythoncore</span><span class="p">-</span><span class="n">3</span><span class="p">.</span><span class="n">14</span><span class="p">-</span><span class="n">64</span><span class="p">\</span><span class="n">python</span><span class="p">.</span><span class="n">exe</span> <span class="n">make_flows</span><span class="p">.</span><span class="n">py</span>        <span class="c"># Ablauf-Diagramme</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">youss</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Local</span><span class="p">\</span><span class="n">Python</span><span class="p">\</span><span class="n">pythoncore</span><span class="p">-</span><span class="n">3</span><span class="p">.</span><span class="n">14</span><span class="p">-</span><span class="n">64</span><span class="p">\</span><span class="n">python</span><span class="p">.</span><span class="n">exe</span> <span class="n">make_simulations</span><span class="p">.</span><span class="n">py</span>  <span class="c"># Videos (echte InsightFace-Matches)</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">youss</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Local</span><span class="p">\</span><span class="n">Python</span><span class="p">\</span><span class="n">pythoncore</span><span class="p">-</span><span class="n">3</span><span class="p">.</span><span class="n">14</span><span class="p">-</span><span class="n">64</span><span class="p">\</span><span class="n">python</span><span class="p">.</span><span class="n">exe</span> <span class="n">make_simulations</span><span class="p">.</span><span class="n">py</span>  <span class="c"># Videos (echte InsightFace-Matches + Dieb-Pose-Code)</span>
 </code></pre></div>
 <blockquote>
-<p>Waffen-/Dieb-Videos werden aus vorhandenen echten Aufnahmen
-(<code>data/results/</code>, <code>dieb_erkennung/output/</code>) übernommen, die Simulationsvideos
-für Gesicht/Fahndung nutzen echte Embeddings von InsightFace.</p>
+<p>Waffen-Video wird aus einer vorhandenen echten Aufnahme
+(<code>data/results/</code>) übernommen; die <strong>Dieb-Simulation</strong> erzeugt
+<code>make_simulations.py</code> mit dem echten Pose-Code aus <code>dieb_erkennung/output/</code>
+(<code>vid_dieb_guard.mp4</code>). Gesicht/Fahndung nutzen echte Embeddings von
+InsightFace.</p>
 </blockquote>
 
 
