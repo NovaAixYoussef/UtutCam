@@ -63,3 +63,21 @@
 .grid.cards img {
   margin: 0;
 }
+
+/* Eingebettete Simulations-Videos */
+.sim-player {
+  max-width: 720px;
+  margin: 0.8rem auto;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(59, 117, 168, 0.15);
+  border: 1px solid #e3ecf4;
+}
+
+.sim-player video {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 480px;
+  background: #0e1621;
+}

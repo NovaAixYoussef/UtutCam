@@ -3,7 +3,7 @@
     python docs/make_simulations.py
 
 Erzeugt in docs/simulationen/:
-    gesicht_simulation.mp4     Gesichtserkennung auf echtem Foto (InsightFace)
+    gesicht_simulation.mp4     Gesichtserkennung gegen faces.json (Elon Musk, InsightFace)
     fahndung_simulation.mp4    Live-Match gegen Bundespolizei-DB (InsightFace)
     web_app_simulation.mp4     Dashboard-Mockup-Animation
 
@@ -54,6 +54,26 @@ def _load_fahndung_db(path=None):
                     "embedding": emb,
                     "title": item.get("title", title),
                     "beschreibung": item.get("beschreibung", ""),
+                    "image_url": item.get("image", ""),
+                })
+    return entries
+
+
+def _load_face_db(path=None):
+    """Liest data/face_db/faces.json -> Liste von {embedding, title, image}."""
+    path = path if path else os.path.join(ROOT, "data", "face_db", "faces.json")
+    if not os.path.exists(path):
+        return []
+    raw = json.load(open(path, encoding="utf-8"))
+    entries = []
+    for name, items in raw.items():
+        for item in items:
+            emb = np.asarray(item.get("embedding", []), dtype=np.float32)
+            if emb.size == 512:
+                entries.append({
+                    "embedding": emb,
+                    "title": name,
+                    "beschreibung": item.get("image", ""),
                     "image_url": item.get("image", ""),
                 })
     return entries
@@ -124,17 +144,23 @@ def make_gesicht_simulation(out_path):
     app = FaceAnalysis(name="buffalo_l", providers=["CPUExecutionProvider"])
     app.prepare(ctx_id=0, det_size=(640, 640))
 
-    img, faces, path = _pick_photo_with_face(app)
+    cam_path = os.path.join(ROOT, "data", "face_db", "photos",
+                            "Elon_Musk_camera.jpg")
+    img = cv2.imread(cam_path)
     if img is None:
-        raise SystemExit("kein Foto mit Gesicht gefunden")
+        raise SystemExit(f"Kamera-Foto fehlt: {cam_path}")
+    faces = app.get(img)
+    if not faces:
+        raise SystemExit("kein Gesicht im Kamera-Foto")
     img_h, img_w = img.shape[:2]
     face = faces[0]
     emb = np.asarray(face.embedding, np.float32)
     emb /= np.linalg.norm(emb)
 
-    db = _load_fahndung_db()
-    scores = sorted([_cos(emb, e["embedding"]) for e in db], reverse=True)[:6]
-    sample = sorted(db[:6], key=lambda e: _cos(emb, e["embedding"]), reverse=True)
+    db = _load_face_db()
+    if not db:
+        raise SystemExit("keine Gesichtsdatenbank (data/face_db/faces.json)")
+    sample = sorted(db, key=lambda e: _cos(emb, e["embedding"]), reverse=True)[:6]
     scores = [_cos(emb, e["embedding"]) for e in sample]
 
     writer = cv2.VideoWriter(out_path, cv2.VideoWriter_fourcc(*"mp4v"), FPS, (W, H))
@@ -173,13 +199,12 @@ def make_gesicht_simulation(out_path):
         _fill_marker(widget, x0 + 60, y0 + 60, i / FPS)
         cv2.putText(widget, "Kamera-Person", (x0, y0 + small.shape[0] + 24),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.6, (36, 59, 83), 1, cv2.LINE_AA)
-        ph = 0.6  # Platzhalter-Panel rechts
         writer.write(widget)
 
-    # --- Phase 2: Vergleich gegen DB ---
+    # --- Phase 2: Vergleich gegen Gesichtsdatenbank ---
     for i in range(_sec(4.5)):
         widget = bg.copy()
-        cv2.putText(widget, "Cosine-Vergleich gegen Datenbank", (30, 40),
+        cv2.putText(widget, "Cosine-Vergleich gegen faces.json", (30, 40),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.8, (36, 59, 83), 2, cv2.LINE_AA)
         prog = min(1.0, i / _sec(2.6))
         k = int(prog * len(scores))
@@ -190,8 +215,8 @@ def make_gesicht_simulation(out_path):
     # --- Phase 3: Ergebnis ---
     best = sample[0]
     best_score = scores[0]
-    label = best["title"][:40] if best_score >= 0.35 else "Unbekannt"
-    col = (108, 123, 217) if best_score >= 0.35 else (36, 59, 83)
+    label = best["title"][:40] if best_score >= 0.40 else "Unbekannt"
+    col = (108, 123, 217) if best_score >= 0.40 else (36, 59, 83)
     for i in range(_sec(3.0)):
         widget = bg.copy()
         cv2.putText(widget, "ERGEBNIS", (W // 2 - 120, 180),

@@ -51,27 +51,30 @@ def auto_track():
 def waffen():
     boxes = [
         {"id": 0, "label": "Frame", "sub": "Kamera / Video", "color": "blau",
-         "x": 0.09, "y": 0.62, "w": 0.13, "h": 0.30},
+         "x": 0.075, "y": 0.45, "w": 0.12, "h": 0.28},
         {"id": 1, "label": "YOLOv8-Modell", "sub": "UtutGun / Hand2 / Best", "color": "lila",
-         "x": 0.28, "y": 0.62, "w": 0.15, "h": 0.38},
-        {"id": 2, "label": "Conf. >= 0.25?", "color": "orange",
-         "x": 0.48, "y": 0.62, "w": 0.14, "h": 0.28},
-        {"id": 3, "label": "Zielklasse?", "sub": "gun / hand / messer", "color": "orange",
-         "x": 0.67, "y": 0.62, "w": 0.14, "h": 0.38},
-        {"id": 4, "label": "Box + Label", "sub": "orangener Kasten\ngun 0.83", "color": "gruen",
-         "x": 0.86, "y": 0.62, "w": 0.14, "h": 0.36},
-        {"id": 5, "label": "Alarm", "sub": "Web-App / Telegram", "color": "rot",
-         "x": 0.955, "y": 0.62, "w": 0.10, "h": 0.30},
-        {"id": 6, "label": "Hand ueber Waffe?", "sub": "hand_cover()-Check", "color": "grau",
-         "x": 0.28, "y": 0.12, "w": 0.16, "h": 0.26},
+         "x": 0.245, "y": 0.45, "w": 0.15, "h": 0.36},
+        {"id": 2, "label": "Conf >= 0.25?", "color": "orange",
+         "x": 0.42, "y": 0.45, "w": 0.13, "h": 0.26},
+        {"id": 3, "label": "Zielklasse?", "sub": "gun / knife / hand", "color": "orange",
+         "x": 0.59, "y": 0.45, "w": 0.14, "h": 0.36},
+        {"id": 4, "label": "Hand ueber Waffe?", "sub": "hand_cover >= 0.70", "color": "orange",
+         "x": 0.755, "y": 0.45, "w": 0.14, "h": 0.36},
+        {"id": 5, "label": "Box + Label", "sub": "orangener Kasten\ngun 0.83", "color": "gruen",
+         "x": 0.90, "y": 0.67, "w": 0.11, "h": 0.32},
+        {"id": 6, "label": "Kein Fehlalarm", "sub": "Treffer verwerfen", "color": "grau",
+         "x": 0.90, "y": 0.20, "w": 0.11, "h": 0.26},
+        {"id": 7, "label": "Nur Hand?", "sub": "keine Waffe", "color": "grau",
+         "x": 0.755, "y": 0.83, "w": 0.12, "h": 0.22},
     ]
-    arrows = [(0, 1), (1, 2), (2, 3, ">= 0.25"), (2, 6, "sonst"), (3, 4, "Klasse ja"),
-              (3, 6, "nein"), (4, 5)]
+    arrows = [(0, 1), (1, 2), (2, 3, ">= 0.25"),
+              (3, 4, "gun / knife"), (3, 7, "hand"),
+              (4, 5, "< 0.70\nWaffe echt"), (4, 6, ">= 0.70\nHand deckt ab")]
     return visualize_flow(
         boxes, arrows,
         output_path=os.path.join(BILDER, "waffen_ablauf.png"),
-        title="Waffenerkennung — YOLOv8-Pipeline",
-        subtitle="Frame -> YOLO -> Konfidenz + Zielklasse -> Box/Label -> Alarm")
+        title="Waffenerkennung — YOLOv8-Pipeline mit Hand-Filter",
+        subtitle="Frame -> YOLO -> Konfidenz + Zielklasse -> Hand-Cover-Filter -> Box/Label oder verwerfen")
 
 
 def dieb():

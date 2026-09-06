@@ -1473,9 +1473,18 @@ Gesichts. Dafür wird ein <strong>Neuronales Netz</strong> verwendet (InsightFac
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>                                                        faces.json
 </code></pre></div>
 <p><strong>Simulation:</strong> <a href="../simulationen/gesicht_simulation.mp4"><code>gesicht_simulation.mp4</code></a>
-(~13 s) — läuft mit <strong>echtem InsightFace</strong> auf einem echten Foto: Gesicht wird
-erkannt, zum 512-dim Embedding gemacht und per Cosinus gegen die Datenbank
-verglichen — bis zum Ergebnis „Erkannt / Unbekannt".</p>
+(~12 s) — läuft mit <strong>echtem InsightFace</strong> auf einem echten Foto: Gesicht wird
+erkannt, zum 512-dim Embedding gemacht und per Cosinus gegen die
+Gesichtsdatenbank <code>faces.json</code> verglichen. Die Person <strong>„Elon Musk"</strong> (öffentliches
+Wikimedia-Foto, Cross-Photo-Match) wird dabei mit hohem Score erkannt — die
+anderen Datenbank-Personen (Youssef, Moussa, Zouhair, Hanane) bleiben darunter.</p>
+<div class="sim-player">
+  <video controls preload="metadata" muted>
+    <source src="simulationen/gesicht_simulation.mp4" type="video/mp4">
+    Ihr Browser unterstützt kein eingebettetes Video.
+  </video>
+</div>
+
 <h2 id="2-die-neuronale-netzwerk-visualisierung">2. Die neuronale Netzwerk-Visualisierung<a class="headerlink" href="#2-die-neuronale-netzwerk-visualisierung" title="Permanent link">&para;</a></h2>
 <p>Das Herzstück — ein Neuronales Netz von der Pixel-Schicht bis zum Matching —
 wird in folgendem Diagramm gezeigt. Du siehst die <strong>Input-Schicht</strong>, mehrere

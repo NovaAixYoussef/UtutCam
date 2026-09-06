@@ -714,6 +714,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="3. Wie es funktioniert">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-hand-detection-filter-hand-uber-waffe-kein-fehlalarm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Hand-Detection-Filter (Hand über Waffe → kein Fehlalarm)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-ablauf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Ablauf
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1298,6 +1326,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="3. Wie es funktioniert">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-hand-detection-filter-hand-uber-waffe-kein-fehlalarm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Hand-Detection-Filter (Hand über Waffe → kein Fehlalarm)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-ablauf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Ablauf
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1366,14 +1422,28 @@
 <p>Die Waffenerkennung erkennt <strong>Schusswaffen (gun)</strong>, <strong>Hände (hand)</strong> und
 <strong>Messer</strong> live im Video — mithilfe eines <strong>YOLOv8-Neuronalen Netzes</strong>, das auf
 Google Colab mit eigenen Daten trainiert wurde. Pro erkanntem Objekt liefert
-die Erkennung eine Bounding-Box, eine Konfidenz und die Klasse.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Kamera/Video ──► YOLOv8 (UtutGun/UtutBest) ──► Box + Konfidenz ──► orangener Kasten + Label
+die Erkennung eine Bounding-Box, eine Konfidenz und die Klasse. Ein
+<strong>Hand-Detection-Filter</strong> prüft, ob eine bloße Hand die Waffe abdeckt — so
+entstehen keine Fehlalarme, wenn jemand die Waffe nur anfasst.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Kamera/Video ──► YOLOv8 (UtutGun/UtutBest) ──► Box + Konfidenz
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>        │
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        ▼
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>Hand über Waffe? (hand_cover ≥ 0.70) ── ja ──► verwerfen (kein Fehlalarm)
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        │ nein
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        ▼
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>orangener Kasten + Label
 </code></pre></div>
-<p><img alt="Waffenerkennung Ablauf" src="../bilder/waffen_ablauf.png" /></p>
 <p><strong>Simulation:</strong> <a href="../simulationen/waffen_simulation.mp4"><code>waffen_simulation.mp4</code></a>
 (26 s) — echte Aufnahme einer <strong>Gun-Erkennung</strong> aus <code>data/results/</code>: Personen
 mit gezogener Waffe werden live als orangener Kasten mit Konfidenz-Label
 markiert.</p>
+<div class="sim-player">
+  <video controls preload="metadata" muted>
+    <source src="simulationen/waffen_simulation.mp4" type="video/mp4">
+    Ihr Browser unterstützt kein eingebettetes Video.
+  </video>
+</div>
+
 <h2 id="2-startbefehle">2. Startbefehle<a class="headerlink" href="#2-startbefehle" title="Permanent link">&para;</a></h2>
 <blockquote>
 <p>Alle Skripte laufen vom Projektstamm <code>C:\Users\youss\Desktop\UtutCam</code> aus.</p>
@@ -1425,20 +1495,59 @@ Ultralytics-YOLOv8-Modelle (<code>.pt</code>):</p>
 </tr>
 </tbody>
 </table>
-<p>Ablauf pro Frame:</p>
+<h3 id="31-hand-detection-filter-hand-uber-waffe-kein-fehlalarm">3.1 Hand-Detection-Filter (Hand über Waffe → kein Fehlalarm)<a class="headerlink" href="#31-hand-detection-filter-hand-uber-waffe-kein-fehlalarm" title="Permanent link">&para;</a></h3>
+<p>Eine <strong>bloße Hand</strong> wird von <code>UtutHand.pt</code> / <code>UtutHand2.pt</code> erkannt — aber
+eine Hand allein ist keine Waffe. Deshalb gibt es einen <strong>Abdeckungs-Check</strong>
+(<code>hand_cover</code>), der Fehlalarme reduziert:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Fläche(Hand ∩ Waffe)  /  Fläche(Waffe-Box)   &gt;=  0.70  →  Treffer verwerfen
+</code></pre></div>
+<ul>
+<li><code>hand_cover(target_box, hand_boxes)</code> berechnet den Anteil der <strong>Waffen-Box</strong>,
+  der von der Hand-Box überdeckt wird (∩-Fläche geteilt durch Waffenfläche).</li>
+<li>Liegt dieser Anteil <strong>über <code>HAND_COVER_THRESHOLD = 0.70</code></strong>, wird die
+  Waffen-Detektion <strong>verworfen</strong> — ein Mensch, der eine Waffe anfasst/trägt,
+  erzeugt so keinen Fehlalarm mehr.</li>
+<li>Unter 0.70 läuft die Detektion normal weiter (Waffe ist sichtbar genug).</li>
+</ul>
+<p>Implementierungen, in denen der Filter aktiv ist:</p>
+<table>
+<thead>
+<tr>
+<th>Datei</th>
+<th>Bereiche</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>messer_erkennung/live_3fenster.py</code></td>
+<td>filtert <code>gun</code>-Treffer mit <code>hand_cover</code></td>
+</tr>
+<tr>
+<td><code>messer_erkennung/test_video_hand.py</code></td>
+<td>zählt <code>kept</code> vs. <code>dropped</code></td>
+</tr>
+<tr>
+<td><code>messer_erkennung/UtutCam.py</code></td>
+<td>filtert Waffen+Messer gesammelt vor Telegram</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Effekt in Tests</strong> (echte Aufnahme): ohne Filter mehr als 100 Fehlalarme, mit
+Filter nur Frames, in denen die Waffe tatsächlich sichtbar ist.</p>
+<h3 id="32-ablauf">3.2 Ablauf<a class="headerlink" href="#32-ablauf" title="Permanent link">&para;</a></h3>
+<p>Der vollständige Ablauf sieht dann so aus:</p>
+<p><img alt="Waffenerkennung Ablauf" src="../bilder/waffen_ablauf.png" /></p>
 <ol>
 <li>Frame an <code>self.model(frame, stream=True, verbose=False, conf=0.25,
    imgsz=640)</code> geben.</li>
 <li>YOLO liefert eine Liste mit Boxen; nur die Zielklasse (<code>gun</code> bzw. <code>hand</code>)
    wird behalten.</li>
 <li>Konfidenz wird auf ganze Prozent gerundet (<code>conf*100//1 // 100</code>).</li>
+<li><strong>Hand-Filter:</strong> Wenn eine Hand ≥ 70 % der Waffen-Box abdeckt, wird der
+   Treffer verworfen (kein Fehlalarm).</li>
 <li>Treffer werden als orangener (0,165,255) Kasten mit Label <code>gun 0.83</code>
    gezeichnet (<code>GunDetector.draw()</code>).</li>
 </ol>
-<p>Zusätzlich gibt es eine <strong>Hand-über-Waffe-Abdeckung</strong>:
-<code>messer_erkennung/test_video_hand.py</code> testet mit <code>hand_cover(gun_box,
-hand_box)</code>, ob eine Hand das Waffen-Objekt verdeckt — das reduziert Fehlalarme
-durch bloße Hände.</p>
 <h2 id="4-modelle-colab-trainiert">4. Modelle (Colab-trainiert)<a class="headerlink" href="#4-modelle-colab-trainiert" title="Permanent link">&para;</a></h2>
 <p>Die Modelle liegen in <code>waffen_erkennung/models/</code>:</p>
 <table>
@@ -1502,6 +1611,11 @@ trainierten Gewichten (Notebooks unter <code>colab/</code>), Export nach <code>.
 <td>Eingabeauflösung des Modells</td>
 </tr>
 <tr>
+<td><code>HAND_COVER_THRESHOLD</code></td>
+<td><code>0.70</code></td>
+<td>Hand-Feld überdeckt ≥ 70 % der Waffen-Box → Treffer verwerfen</td>
+</tr>
+<tr>
 <td><code>stream=True</code></td>
 <td>–</td>
 <td>inkrementelle Inferenz (schneller)</td>
@@ -1520,9 +1634,9 @@ trainierten Gewichten (Notebooks unter <code>colab/</code>), Export nach <code>.
   Fahndung) mit <code>ThreadedStream</code>.</li>
 <li><code>waffen_erkennung/detector.py</code> → sehr einfacher Einstieg:</li>
 </ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">waffen_erkennung.detector</span><span class="w"> </span><span class="kn">import</span> <span class="n">GunDetector</span><span class="p">,</span> <span class="n">HandDetector</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">gun</span>  <span class="o">=</span> <span class="n">GunDetector</span><span class="p">()</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>     <span class="c1"># [{&quot;box&quot;:(x1,y1,x2,y2), &quot;conf&quot;:0.9, &quot;class&quot;:&quot;gun&quot;}]</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">hands</span> <span class="o">=</span> <span class="n">HandDetector</span><span class="p">()</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>    <span class="c1"># [{&quot;box&quot;:..., &quot;conf&quot;:0.7, &quot;class&quot;:&quot;hand&quot;}]</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">waffen_erkennung.detector</span><span class="w"> </span><span class="kn">import</span> <span class="n">GunDetector</span><span class="p">,</span> <span class="n">HandDetector</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">gun</span>  <span class="o">=</span> <span class="n">GunDetector</span><span class="p">()</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>     <span class="c1"># [{&quot;box&quot;:(x1,y1,x2,y2), &quot;conf&quot;:0.9, &quot;class&quot;:&quot;gun&quot;}]</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">hands</span> <span class="o">=</span> <span class="n">HandDetector</span><span class="p">()</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>    <span class="c1"># [{&quot;box&quot;:..., &quot;conf&quot;:0.7, &quot;class&quot;:&quot;hand&quot;}]</span>
 </code></pre></div>
 <h2 id="7-verwandte-dateien">7. Verwandte Dateien<a class="headerlink" href="#7-verwandte-dateien" title="Permanent link">&para;</a></h2>
 <ul>

@@ -756,6 +756,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#33-posen-bewegungs-bewertung-coco-17-keypoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Posen-/Bewegungs-Bewertung (COCO-17-Keypoints)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1318,6 +1329,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#33-posen-bewegungs-bewertung-coco-17-keypoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Posen-/Bewegungs-Bewertung (COCO-17-Keypoints)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1391,6 +1413,13 @@ abdecken, Kasse anfassen) bewertet.</p>
 (32 s) — echte Aufnahme aus <code>dieb_erkennung/output/</code>: eine Person, die lange an
 einem Ort verweilt, wird über <strong>Loitering</strong> erkannt und als Verdächtiger
 (Loitering-Kasten) markiert.</p>
+<div class="sim-player">
+  <video controls preload="metadata" muted>
+    <source src="simulationen/dieb_simulation.mp4" type="video/mp4">
+    Ihr Browser unterstützt kein eingebettetes Video.
+  </video>
+</div>
+
 <h2 id="2-startbefehle">2. Startbefehle<a class="headerlink" href="#2-startbefehle" title="Permanent link">&para;</a></h2>
 <blockquote>
 <p>Alle Skripte laufen vom Projektstamm <code>C:\Users\youss\Desktop\UtutCam</code> aus.</p>
@@ -1434,6 +1463,22 @@ einem Ort verweilt, wird über <strong>Loitering</strong> erkannt und als Verdä
 <li>Die Verdachts-DB liegt unter <code>data/dieb/diebe.json</code>
   (<code>THIEF_MATCH_THRESHOLD=0.40</code>).</li>
 </ul>
+<h3 id="33-posen-bewegungs-bewertung-coco-17-keypoints">3.3 Posen-/Bewegungs-Bewertung (COCO-17-Keypoints)<a class="headerlink" href="#33-posen-bewegungs-bewertung-coco-17-keypoints" title="Permanent link">&para;</a></h3>
+<p>Das <strong>Posen-Modell</strong> (<code>yolov8n-pose</code>) zeichnet pro Person ein Skelett aus
+<strong>17 Keypoints</strong> — Nase, Augen, Ohren, Schultern, Ellbogen, Handgelenke,
+Hüften, Knie und Füße:</p>
+<p><img alt="COCO-17 Body-Keypoints" src="../bilder/dieb_keypoints.png" /></p>
+<p>Aus diesen 17 Punkten wird eine <strong>Geste</strong> abgeleitet (<code>_gesture_score</code> in
+<code>dieb_erkennung/pose_detector.py</code>):</p>
+<ul>
+<li><strong>Kopf gesenkt</strong> (Nase unterhalb der Schulterlinie) → +1</li>
+<li><strong>Hände unterhalb der Hüftlinie</strong> (je Handgelenk) → +1 je Hand</li>
+</ul>
+<p>Erreicht eine Person genügend Gesture-Frames über ein Zeitfenster
+(<code>gesture_frames_threshold=12</code>), wird sie wie beim Loitering als <strong>Dieb</strong>
+eingestuft — typische Ladebewegung „Gegenstand abdecken / in die Hosentasche
+stecken". Das Skelett wird live als lila (Verdacht) bzw. grüner Linienzug im
+Video gezeichnet (<code>_draw_pose</code>).</p>
 <h2 id="4-konfiguration">4. Konfiguration<a class="headerlink" href="#4-konfiguration" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1453,6 +1498,11 @@ einem Ort verweilt, wird über <strong>Loitering</strong> erkannt und als Verdä
 <td><code>loitering_threshold</code></td>
 <td><code>10.0</code> s</td>
 <td>Verweildauer bis Verdacht</td>
+</tr>
+<tr>
+<td><code>gesture_frames_threshold</code></td>
+<td><code>12</code></td>
+<td>Gesture-Frames (Pose) bis Verdacht</td>
 </tr>
 <tr>
 <td><code>imgsz</code></td>
