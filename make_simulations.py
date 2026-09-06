@@ -54,25 +54,34 @@ def _sec(t: float) -> int:
 def _to_h264(path: str) -> None:
     """mp4v (MPEG-4 Part 2) kann ein Browser nicht abspielen - er braucht
     H.264 (avc1). Re-encode daher nach dem Schreiben per gebuendeltem ffmpeg
-    (imageio-ffmpeg), falls verfuegbar."""
+    (imageio-ffmpeg), falls verfuegbar.
+
+    Achtung: Dies ist nur der Noetfall-Weg. Bevorzugt wird das direkte
+    H.264-Schreiben ueber `_H264Writer` (ein Pass, kein zwischenzeitliches
+    Verschieben) - damit gibt es keine korrupten Dateien durch fehlgeschlagene
+    Ein-Datei-Aktionen."""
     try:
         import imageio_ffmpeg
     except Exception:                    # pragma: no cover
         print(f"WARN: imageio-ffmpeg fehlt, {path} bleibt mp4v")
         return
     ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
-    with tempfile.TemporaryDirectory() as td:
-        tmp = os.path.join(td, os.path.basename(path) + ".h264.mp4")
-        cmd = [ffmpeg, "-y", "-i", path, "-c:v", "libx264", "-preset", "medium",
-               "-crf", "23", "-pix_fmt", "yuv420p", "-movflags", "+faststart",
-               "-an", tmp]
-        r = subprocess.run(cmd, capture_output=True, text=True)
-        if r.returncode != 0:            # pragma: no cover
-            print(f"WARN: ffmpeg-Reencode fehlgeschlagen fuer {path}")
-            print(r.stderr[-800:])
-            return
-        shutil.move(tmp, path)
-    print("  (re-encoded -> H.264/avc1)")
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            tmp = os.path.join(td, os.path.basename(path) + ".h264.mp4")
+            cmd = [ffmpeg, "-y", "-i", path, "-c:v", "libx264",
+                   "-preset", "medium", "-crf", "23", "-pix_fmt", "yuv420p",
+                   "-movflags", "+faststart", "-an", tmp]
+            r = subprocess.run(cmd, capture_output=True, text=True)
+            if r.returncode != 0:            # pragma: no cover
+                print(f"WARN: ffmpeg-Reencode fehlgeschlagen fuer {path}")
+                print(r.stderr[-800:])
+                return
+            if os.path.exists(tmp) and os.path.getsize(tmp) > 100:
+                shutil.move(tmp, path)
+        print("  (re-encoded -> H.264/avc1)")
+    except Exception as e:              # pragma: no cover
+        print(f"WARN: {e}")
 
 
 def _load_fahndung_db(path=None):
@@ -174,6 +183,205 @@ def _draw_overlay(img, entries, scores, highlight):
                     cv2.FONT_HERSHEY_SIMPLEX, 0.45, (92, 112, 128), 1, cv2.LINE_AA)
 
 
+_CHROME = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
+_HAAR = None
+
+
+def _load_haar():
+    global _HAAR
+    if _HAAR is None:
+        _HAAR = cv2.CascadeClassifier(
+            cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+    return _HAAR
+
+
+def _blur_faces(img, upscale=1.6):
+    """Automatisches Blur aller erkannten Gesichter in einem Bild (Datenschutz).
+
+    Verwendet den OpenCV-Haar-Cascade. `upscale` vergroessert das Bild intern,
+    damit auch kleine Gesichter zuverlaessig erkannt werden. Gibt eine Kopie
+    zurueck; erkennt der Detektor nichts, bleibt das Bild unveraendert.
+    """
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    small = cv2.resize(gray, (0, 0), fx=upscale, fy=upscale,
+                       interpolation=cv2.INTER_LINEAR)
+    faces = _load_haar().detectMultiScale(small, scaleFactor=1.1,
+                                          minNeighbors=5,
+                                          minSize=(int(30 * upscale),
+                                                   int(30 * upscale)))
+    out = img.copy()
+    for (x, y, w, h) in faces:
+        x = int(x / upscale)
+        y = int(y / upscale)
+        w = int(w / upscale)
+        h = int(h / upscale)
+        pad = int(0.25 * max(w, h))
+        x0, y0 = max(0, x - pad), max(0, y - pad)
+        x1, y1 = min(img.shape[1], x + w + pad), min(img.shape[0], y + h + pad)
+        roi = out[y0:y1, x0:x1]
+        bsigma = max(15, int(0.35 * max(roi.shape[:2])))
+        out[y0:y1, x0:x1] = cv2.GaussianBlur(roi, (0, 0), bsigma)
+    return out
+
+
+def _render_html_shots(pages, out_dir):
+    """Rendert eine Liste von (name, html)-Seiten per Playwright/Chrome zu PNGs.
+
+    Jede Seite wird im Viewport 1280x720 (ohne Scrolling) abgelichtet und als
+    `name.png` in `out_dir` gespeichert. Liefert die Liste der Pfade.
+    """
+    if not os.path.exists(_CHROME):
+        raise SystemExit(f"Chrome fehlt (HTML-Simulationen): {_CHROME}")
+    from playwright.sync_api import sync_playwright
+    shot_paths = []
+    with sync_playwright() as pw:
+        browser = pw.chromium.launch(executable_path=_CHROME, headless=True,
+                                     args=["--no-sandbox", "--disable-gpu",
+                                           "--hide-scrollbars"])
+        page = browser.new_page(viewport={"width": W, "height": H})
+        for name, html in pages:
+            fpath = os.path.join(out_dir, name + ".html")
+            with open(fpath, "w", encoding="utf-8") as f:
+                f.write(html)
+            url = "file:///" + fpath.replace("\\", "/").replace(" ", "%20")
+            page.goto(url, wait_until="networkidle", timeout=20000)
+            page.wait_for_timeout(700)
+            out = os.path.join(out_dir, name + ".png")
+            page.screenshot(path=out, clip={"x": 0, "y": 0, "width": W,
+                                            "height": H})
+            shot_paths.append(out)
+            print("  html shot:", name)
+        browser.close()
+    return shot_paths
+
+
+def _html_style(base="#eef2f6", accent="#6c5ce7", font="'Open Sans'"):
+    return f"""
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap');
+      * {{ margin:0; padding:0; box-sizing:border-box; }}
+      html,body {{ width:1280px; height:720px; overflow:hidden;
+        font-family:{font},Arial,sans-serif; background:{base}; color:#1f2937; }}
+      .app {{ width:1280px; height:720px; position:relative; }}
+      .topbar {{ position:absolute; top:0; left:0; right:0; height:64px;
+        background:#ffffff; border-bottom:1px solid #e5e9f0; display:flex;
+        align-items:center; padding:0 28px; gap:20px; z-index:5; }}
+      .topbar .logo {{ font-weight:800; font-size:20px; color:{accent}; }}
+      .topbar .crumb {{ color:#64748b; font-size:13px; }}
+      .card {{ background:#fff; border:1px solid #e5e9f0; border-radius:16px;
+        box-shadow:0 1px 3px rgba(16,24,40,.06); }}
+      .tag {{ display:inline-flex; align-items:center; gap:6px; font-size:12px;
+        font-weight:600; padding:4px 10px; border-radius:999px; }}
+      .btn {{ display:inline-flex; align-items:center; gap:8px; font-weight:600;
+        font-size:13px; padding:8px 16px; border-radius:10px; border:1px solid #e5e9f0;
+        background:#fff; cursor:pointer; }}
+      .btn.primary {{ background:{accent}; color:#fff; border-color:{accent}; }}
+    </style>
+    """
+
+
+def _vid_from_pngs(shots, out_path, secs_per_shot=3.4, fade=0.6, hold=0.8,
+                    blur=False):
+    """Baut aus einer Liste von PNGs ein Video mit Crossfades.
+
+    `blur=True` blurrt vorher alle Gesichter in jedem Frame (Datenschutz).
+
+    Robust: schreibt die RGB-Frames in eine temporaere .raw-Datei und laesst
+    ffmpeg daraus in einem Rutsch ein H.264-MP4 erzeugen. Danach folgen zwei
+    weitere Reencode-Schritte, die das Ergebnis in das finale MP4 umwandeln.
+    (Der zweite Reencode ist ein Workaround: der direkte Encode aus den
+    HTML-Rendershots wird von einer externen Komponente (z. B. AV) zuverlaessig
+    zerstoert — erst der Reencode-Output ueberlebt; empirisch deterministisch.)
+    """
+    import subprocess
+    import imageio_ffmpeg
+
+    tmp1 = out_path + ".t1.mp4"
+    tmp2 = out_path + ".t2.mp4"
+    raw = out_path + ".raw"
+    frames = 0
+    with open(raw, "wb") as fh:
+        prev = None
+        for idx, shot in enumerate(shots):
+            img = cv2.imread(shot)
+            if img is None:
+                continue
+            if blur:
+                img = _blur_faces(img)
+            n = max(int(secs_per_shot * FPS), 10)
+            buf = []
+            if prev is not None:
+                nf = int(fade * FPS)
+                for i in range(nf):
+                    t = (i + 1) / (nf + 1)
+                    buf.append(cv2.addWeighted(prev, 1 - t, img, t, 0))
+            buf.extend(img for _ in range(n))
+            for f in buf:
+                fh.write(cv2.cvtColor(f, cv2.COLOR_BGR2RGB).tobytes())
+                frames += 1
+            prev = img
+            print(f"  vid: {os.path.basename(shot)} ({n} Frames)")
+        if prev is not None:
+            for _ in range(int(hold * FPS)):
+                fh.write(cv2.cvtColor(prev, cv2.COLOR_BGR2RGB).tobytes())
+                frames += 1
+
+    ff = imageio_ffmpeg.get_ffmpeg_exe()
+    cmd1 = [ff, "-y",
+            "-f", "rawvideo", "-pix_fmt", "rgb24",
+            "-s", f"{W}x{H}", "-r", str(FPS), "-i", raw,
+            "-c:v", "libx264", "-preset", "medium", "-crf", "20",
+            "-pix_fmt", "yuv420p", "-an", tmp1]
+    r = subprocess.run(cmd1, capture_output=True, text=True)
+    if r.returncode != 0:
+        print("FFMPEG STEP1 ERROR:", r.stderr[:400])
+    try:
+        os.remove(raw)
+    except OSError:
+        pass
+
+    def _reencode(src, dst):
+        cmd = [ff, "-y", "-i", src,
+               "-c:v", "libx264", "-preset", "medium", "-crf", "20",
+               "-pix_fmt", "yuv420p",
+               "-movflags", "+faststart", "-an", dst]
+        r = subprocess.run(cmd, capture_output=True, text=True)
+        if r.returncode != 0:
+            print("FFMPEG REENCODE ERROR:", r.stderr[:400])
+        try:
+            os.remove(src)
+        except OSError:
+            pass
+
+    _reencode(tmp1, tmp2)
+    _reencode(tmp2, out_path)
+
+    # Snapshot der gerade erzeugten Bytes. Externes Tooling (AV/Watcher)
+    # zerstoert mp4-Dateien, die ffmpeg frisch streamend geschrieben hat,
+    # innerhalb weniger Sekunden. Eine schlichte Byte-Kopie ist stabil.
+    try:
+        snap = out_path + ".snap.mp4"
+        with open(out_path, "rb") as fsrc, open(snap, "wb") as fdst:
+            shutil.copyfileobj(fsrc, fdst)
+    except OSError:
+        snap = None
+
+    print(f"  -> {out_path} ({frames} Frames, "
+          f"{os.path.getsize(out_path) // 1024} KB)")
+    return snap
+
+
+def _b64_img(img, quality=92):
+    """cv2-Bild (BGR) -> base64 data-URI für HTML <img>."""
+    import base64
+    import io
+    ok, buf = cv2.imencode(".jpg", img, [int(cv2.IMWRITE_JPEG_QUALITY),
+                                         quality])
+    if not ok:
+        return ""
+    return "data:image/jpeg;base64," + base64.b64encode(buf).decode()
+
+
 def make_gesicht_simulation(out_path):
     if FaceAnalysis is None:
         raise SystemExit("insightface fehlt")
@@ -206,68 +414,145 @@ def make_gesicht_simulation(out_path):
     bg = np.full((H, W, 3), _bg, np.uint8)
     l, t, r, b = _face_box(face, img_w, img_h)
 
-    for i in range(_sec(0.5)):
-        writer.write(bg)
-
-    # --- Phase 1: Foto mit erkanntem Gesicht (statisch, minimal) ---
     overlay = img.copy()
-    cv2.rectangle(overlay, (l, t), (r, b), (90, 184, 138), 2)
-    cv2.putText(overlay, "Gesicht erkannt", (l, max(20, t - 12)),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (90, 184, 138), 2, cv2.LINE_AA)
+    cv2.rectangle(overlay, (l, t), (r, b), (90, 184, 138), 3)
+    cv2.rectangle(overlay, (l, t), (r, b), (90, 184, 138), 1)
 
     hh, ww = overlay.shape[:2]
-    ratio = min(560 / ww, 340 / hh)
-    small = cv2.resize(overlay, (int(ww * ratio), int(hh * ratio)))
-    x0, y0 = 40, (H - small.shape[0]) // 2 - 20
+    ratio = min(300 / ww, 300 / hh)
+    nw, nh = int(ww * ratio), int(hh * ratio)
+    photo = cv2.resize(overlay, (nw, nh))
+    photo_uri = _b64_img(photo)
+    cam_uri = _b64_img(cv2.resize(img, (nw, nh)))
 
-    for i in range(_sec(4.0)):
-        widget = bg.copy()
-        cv2.putText(widget, "GESICHTSERKENNUNG", (30, 44),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36, 59, 83), 2, cv2.LINE_AA)
-        cv2.putText(widget, "Kamera-Person", (x0, y0 - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (36, 59, 83), 1, cv2.LINE_AA)
-        cv2.rectangle(widget, (x0, y0),
-                      (x0 + small.shape[1], y0 + small.shape[0]),
-                      (213, 223, 231), 2)
-        widget[y0:y0 + small.shape[0], x0:x0 + small.shape[1]] = small
-        cv2.putText(widget, "Embedding 512-dim  ->  Cosine-Vergleich",
-                    (x0, y0 + small.shape[0] + 28),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.55, (92, 112, 128), 1, cv2.LINE_AA)
-        writer.write(widget)
-
-    # --- Phase 2: Vergleich gegen Gesichtsdatenbank (minimal) ---
-    for i in range(_sec(4.5)):
-        widget = bg.copy()
-        cv2.putText(widget, "Vergleich gegen faces.json", (30, 40),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (36, 59, 83), 2, cv2.LINE_AA)
-        prog = min(1.0, i / _sec(2.6))
-        k = int(prog * len(scores))
-        _draw_overlay(widget, sample, [s if idx < k else 0 for idx, s in enumerate(scores)],
-                      0 if prog >= 1 else -1)
-        writer.write(widget)
-
-    # --- Phase 3: Ergebnis (minimale Karte) ---
     best = sample[0]
     best_score = scores[0]
     label = best["title"][:40] if best_score >= 0.40 else "Unbekannt"
-    col = (108, 123, 217) if best_score >= 0.40 else (36, 59, 83)
-    cx0, cy0, cw, ch = W // 2 - 260, 210, 520, 180
-    for i in range(_sec(3.0)):
-        widget = bg.copy()
-        cv2.rectangle(widget, (cx0, cy0), (cx0 + cw, cy0 + ch), (255, 255, 255), -1)
-        cv2.rectangle(widget, (cx0, cy0), (cx0 + cw, cy0 + ch), (213, 223, 231), 2)
-        cv2.putText(widget, "ERGEBNIS", (cx0 + 24, cy0 + 40),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (92, 112, 128), 1, cv2.LINE_AA)
-        cv2.putText(widget, label, (cx0 + 24, cy0 + 110),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1.2, col, 2, cv2.LINE_AA)
-        cv2.putText(widget, f"Score: {best_score:.2f}", (cx0 + 24, cy0 + 160),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, col, 2, cv2.LINE_AA)
-        writer.write(widget)
+    accent = "#10b981" if best_score >= 0.40 else "#94a3b8"
 
-    for i in range(_sec(0.8)):
-        writer.write(bg)
+    style = _html_style(accent=accent)
+    bars = ""
+    for idx, (entry, score) in enumerate(zip(sample, scores)):
+        pct = max(2, int(round(score * 100)))
+        col = "linear-gradient(90deg,#6366f1,#8b5cf6)" if score >= 0.40 else "#cbd5e1"
+        bars += f"""
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
+          <div style="width:200px;font-size:13px;font-weight:600;color:#334155;
+                     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            <span style="display:inline-block;width:22px;height:22px;border-radius:8px;
+                 background:#eef2ff;color:#6366f1;text-align:center;line-height:22px;
+                 font-size:11px;font-weight:700;margin-right:8px;">{idx + 1}</span>
+            {entry["title"][:26]}
+          </div>
+          <div style="flex:1;height:18px;border-radius:99px;background:#eef2f7;overflow:hidden;">
+            <div style="height:100%;width:{pct}%;border-radius:99px;background:{col};"></div>
+          </div>
+          <div style="width:46px;text-align:right;font-weight:700;font-size:13px;
+                     color:{'#6366f1' if score >= 0.40 else '#64748b'};">{score:.2f}</div>
+        </div>"""
 
-    writer.release()
+    pages = [
+        ("gesicht_1", f"""<!DOCTYPE html><html><head><meta charset="utf-8">{style}</head>
+<body><div class="app">
+  <div class="topbar">
+    <div class="logo">UtutCam</div>
+    <div class="crumb">Gesichtserkennung</div>
+    <div style="flex:1"></div>
+    <span class="tag" style="background:#ecfdf5;color:#059669;">● Analyse läuft</span>
+  </div>
+  <div style="padding:32px 36px;display:flex;gap:32px;height:656px;">
+    <div style="flex:1.15;display:flex;flex-direction:column;gap:14px;">
+      <div class="card" style="padding:20px;">
+        <div style="font-size:12px;font-weight:700;color:#64748b;
+                    text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;">
+          Live-Kamera</div>
+        <div style="display:flex;justify-content:center;">
+          <img src="{photo_uri}" style="max-width:100%;max-height:300px;border-radius:12px;
+               border:1px solid #e5e9f0;"/>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
+          <span style="width:10px;height:10px;border-radius:99px;background:#10b981;"></span>
+          <span style="font-size:14px;font-weight:600;color:#334155;">Gesicht erkannt</span>
+          <span style="font-size:12px;color:#94a3b8;margin-left:auto;">
+            Embedding 512-dim → Cosine</span>
+        </div>
+      </div>
+      <div class="card" style="padding:18px 20px;display:flex;gap:20px;">
+        <div style="flex:1;text-align:center;padding:10px 0;border-radius:12px;background:#eef2ff;">
+          <div style="font-size:11px;color:#6366f1;font-weight:700;">ERKANNTES GESICHT</div>
+          <div style="font-size:22px;font-weight:800;color:#4338ca;">1</div>
+        </div>
+        <div style="flex:1;text-align:center;padding:10px 0;border-radius:12px;background:#f1f5f9;">
+          <div style="font-size:11px;color:#64748b;font-weight:700;">Datenbank</div>
+          <div style="font-size:22px;font-weight:800;color:#334155;">{len(db)}</div>
+        </div>
+        <div style="flex:1;text-align:center;padding:10px 0;border-radius:12px;background:#f1f5f9;">
+          <div style="font-size:11px;color:#64748b;font-weight:700;">Vergleich</div>
+          <div style="font-size:22px;font-weight:800;color:#334155;">1:{len(db)}</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="flex:1;padding:24px;display:flex;flex-direction:column;">
+      <div style="font-size:16px;font-weight:800;color:#1e293b;">Vergleich gegen faces.json</div>
+      <div style="font-size:12px;color:#94a3b8;margin:6px 0 18px;">
+        Cosinus-Ähnlichkeit jedes Gesichts aus der Datenbank zum Live-Bild.</div>
+      <div style="flex:1;">{bars}</div>
+      <div style="margin-top:auto;border-top:1px solid #eef2f7;padding-top:16px;
+                 display:flex;align-items:center;gap:10px;">
+        <span class="tag" style="background:#eef2ff;color:#6366f1;">✓ Match-Prozess aktiv</span>
+        <span style="font-size:12px;color:#94a3b8;margin-left:auto;">faces.json</span>
+      </div>
+    </div>
+  </div>
+</div></body></html>
+"""),
+        ("gesicht_2", f"""<!DOCTYPE html><html><head><meta charset="utf-8">{style}</head>
+<body><div class="app">
+  <div class="topbar">
+    <div class="logo">UtutCam</div>
+    <div class="crumb">Gesichtserkennung</div>
+    <div style="flex:1"></div>
+    <span class="tag" style="background:#eef2ff;color:#6366f1;">✓ Vergleich abgeschlossen</span>
+  </div>
+  <div style="padding:40px 36px;height:656px;display:flex;
+              justify-content:center;align-items:center;">
+    <div class="card" style="width:760px;padding:34px 38px;">
+      <div style="display:flex;align-items:center;gap:24px;">
+        <div style="width:150px;height:150px;border-radius:20px;overflow:hidden;
+                   border:3px solid {accent};box-shadow:0 4px 20px rgba(16,24,40,.10);
+                   display:flex;justify-content:center;align-items:center;">
+          <img src="{cam_uri}" style="width:100%;height:100%;object-fit:cover;"/>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:12px;font-weight:700;color:#64748b;
+                      text-transform:uppercase;letter-spacing:.06em;">Ergebnis</div>
+          <div style="font-size:30px;font-weight:800;color:{'#4338ca' if best_score >= 0.40 else '#1e293b'};
+                      margin-top:6px;">{label}</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:12px;">
+            <span class="tag" style="background:{'#ecfdf5' if best_score >= 0.40 else '#f8fafc'};
+                  color:{'#059669' if best_score >= 0.40 else '#64748b'};">
+              {'● MATCH' if best_score >= 0.40 else '○ KEIN MATCH'}</span>
+            <span style="font-size:13px;color:#94a3b8;">
+              Score {best_score:.2f} {'(>= 0.40)' if best_score >= 0.40 else '(< 0.40)'}</span>
+          </div>
+        </div>
+      </div>
+      <div style="border-top:1px solid #eef2f7;margin-top:26px;padding-top:20px;
+                 display:flex;gap:12px;">
+        <span class="tag" style="background:#eff6ff;color:#2563eb;">🖼 Screenshot gespeichert</span>
+        <span class="tag" style="background:#fef3c7;color:#b45309;">✈ Telegram-Alarm versendet</span>
+        <span style="font-size:12px;color:#94a3b8;margin-left:auto;align-self:center;">
+          compare_against_db → data/face_db/faces.json</span>
+      </div>
+    </div>
+  </div>
+</div></body></html>
+"""),
+    ]
+
+    with tempfile.TemporaryDirectory() as td:
+        shots = _render_html_shots(pages, td)
+        _vid_from_pngs(shots, out_path, secs_per_shot=4.0, fade=0.6, hold=0.8)
     print("gesicht:", out_path, os.path.getsize(out_path) // 1024, "KB")
 
 
@@ -288,64 +573,126 @@ def make_fahndung_simulation(out_path):
     scores = [_cos(emb, e["embedding"]) for e in db_sorted]
 
     img_h, img_w = img.shape[:2]
-    writer = cv2.VideoWriter(out_path, cv2.VideoWriter_fourcc(*"mp4v"), FPS, (W, H))
-    bg = np.full((H, W, 3), _bg, np.uint8)
 
-    for i in range(_sec(0.5)):
-        writer.write(bg)
+    overlay = img.copy()
+    fb = faces[0]
+    fl, ft, fr, fb2 = _face_box(fb, img_w, img_h)
+    cv2.rectangle(overlay, (fl, ft), (fr, fb2), (217, 123, 108), 3)
 
-    # Phase 1: Live-Kamera + Fahndungs-Liste lädt
-    for i in range(_sec(3.5)):
-        widget = bg.copy()
-        cv2.putText(widget, "FAHNDUNG", (30, 44),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36, 59, 83), 2, cv2.LINE_AA)
-        hh, ww = img.shape[:2]
-        ratio = min(400 / ww, 340 / hh)
-        small = cv2.resize(img, (int(ww * ratio), int(hh * ratio)))
-        x0, y0 = 40, 120
-        cv2.putText(widget, "Kamera-Person", (x0, y0 - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (36, 59, 83), 1, cv2.LINE_AA)
-        cv2.rectangle(widget, (x0, y0), (x0 + small.shape[1], y0 + small.shape[0]),
-                      (90, 184, 138), 2)
-        widget[y0:y0 + small.shape[0], x0:x0 + small.shape[1]] = small
+    hh, ww = overlay.shape[:2]
+    ratio = min(350 / ww, 350 / hh)
+    nw, nh = int(ww * ratio), int(hh * ratio)
+    photo_uri = _b64_img(cv2.resize(overlay, (nw, nh)))
 
-        cv2.putText(widget, "fahndungen.json", (W - 600, 40),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (36, 59, 83), 2, cv2.LINE_AA)
-        cv2.putText(widget, f"{len(db)} Fahndungen geladen", (W - 600, 76),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (92, 112, 128), 1, cv2.LINE_AA)
-        n_show = int(min(len(db), 8) * min(1, i / _sec(1.5)))
-        for j in range(n_show):
-            y = 120 + j * 56
-            cv2.rectangle(widget, (W - 620, y), (W - 40, y + 44), (226, 232, 238), 1)
-            cv2.putText(widget, db_sorted[j]["title"][:52], (W - 606, y + 18),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.45, (92, 112, 128), 1, cv2.LINE_AA)
-            cv2.putText(widget, "( wird verglichen ... )", (W - 606, y + 36),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.4, (160, 175, 187), 1, cv2.LINE_AA)
-        writer.write(widget)
-
-    # Phase 2: Treffer-Meldung
     best = db_sorted[0]
     best_score = scores[0]
-    cx0, cy0, cw, ch = W // 2 - 320, 180, 640, 240
-    for i in range(_sec(4.5)):
-        widget = bg.copy()
-        cv2.rectangle(widget, (cx0, cy0), (cx0 + cw, cy0 + ch), (255, 255, 255), -1)
-        cv2.rectangle(widget, (cx0, cy0), (cx0 + cw, cy0 + ch), (217, 123, 108), 2)
-        cv2.putText(widget, "FAHNDUNGS-TREFFER", (cx0 + 24, cy0 + 48),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1.1, (217, 123, 108), 2, cv2.LINE_AA)
-        cv2.putText(widget, best["title"][:60], (cx0 + 24, cy0 + 120),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36, 59, 83), 2, cv2.LINE_AA)
-        cv2.putText(widget, f"Cosine-Score: {best_score:.2f}  (>= 0.35)",
-                    (cx0 + 24, cy0 + 180),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (36, 59, 83), 2, cv2.LINE_AA)
-        cv2.putText(widget, "Screenshot gespeichert  |  Telegram-Alarm versendet",
-                    (cx0 + 24, cy0 + 224),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (92, 112, 128), 1, cv2.LINE_AA)
-        writer.write(widget)
+    db_count = len(db)
 
-    for i in range(_sec(0.8)):
-        writer.write(bg)
-    writer.release()
+    rows = ""
+    for idx, entry in enumerate(db_sorted[:8]):
+        pct = max(2, int(round(scores[idx] * 100)))
+        col = "linear-gradient(90deg,#ef4444,#f97316)" if scores[idx] >= 0.35 else "#cbd5e1"
+        rows += f"""
+        <div style="display:flex;align-items:center;gap:14px;padding:11px 0;
+                    border-bottom:1px solid #eef2f7;">
+          <div style="width:30px;height:30px;border-radius:10px;background:#fef2f2;
+                     color:#ef4444;text-align:center;line-height:30px;font-size:12px;
+                     font-weight:800;">{idx + 1}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:600;color:#334155;white-space:nowrap;
+                        overflow:hidden;text-overflow:ellipsis;">{entry["title"][:52]}</div>
+            <div style="font-size:11px;color:#94a3b8;">{entry.get("beschreibung", "")[:44]}</div>
+          </div>
+          <div style="width:120px;height:14px;border-radius:99px;background:#eef2f7;overflow:hidden;">
+            <div style="height:100%;width:{pct}%;background:{col};border-radius:99px;"></div>
+          </div>
+          <div style="width:46px;text-align:right;font-weight:700;font-size:13px;
+                     color:{'#ef4444' if scores[idx] >= 0.35 else '#64748b'};">{scores[idx]:.2f}</div>
+        </div>"""
+
+    pages = [
+        ("fahndung_1", f"""<!DOCTYPE html><html><head><meta charset="utf-8">{_html_style(accent="#ef4444")}</head>
+<body><div class="app">
+  <div class="topbar">
+    <div class="logo">UtutCam</div>
+    <div class="crumb">Fahndung</div>
+    <div style="flex:1"></div>
+    <span class="tag" style="background:#fef2f2;color:#dc2626;">● Live-Scan aktiv</span>
+  </div>
+  <div style="padding:32px 36px;display:flex;gap:32px;height:656px;align-items:stretch;">
+    <div style="flex:1.05;display:flex;flex-direction:column;gap:14px;">
+      <div class="card" style="padding:20px;flex:1;display:flex;flex-direction:column;">
+        <div style="font-size:12px;font-weight:700;color:#64748b;
+                    text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;">
+          Live-Kamera</div>
+        <div style="display:flex;justify-content:center;align-items:center;flex:1;">
+          <img src="{photo_uri}" style="max-width:100%;max-height:300px;border-radius:12px;
+               border:1px solid #e5e9f0;"/>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:12px;">
+          <span class="tag" style="background:#fef2f2;color:#dc2626;">🔍 Gesicht erkannt</span>
+          <span class="tag" style="background:#f1f5f9;color:#475569;">{db_count} Fahndungen</span>
+          <span style="font-size:12px;color:#94a3b8;margin-left:auto;align-self:center;">
+            fahndungen.json</span>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="flex:1.35;padding:24px;">
+      <div style="font-size:16px;font-weight:800;color:#1e293b;">Vergleich vs. Fahndungsliste</div>
+      <div style="font-size:12px;color:#94a3b8;margin:6px 0 14px;">
+        Beste Treffer nach Cosinus-Ähnlichkeit (Threshold &gt;= 0.35)</div>
+      {rows}
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid #eef2f7;
+                 display:flex;align-items:center;gap:10px;">
+        <span class="tag" style="background:#fef2f2;color:#dc2626;">✈ Alarm bei Treffer</span>
+        <span style="font-size:12px;color:#94a3b8;margin-left:auto;">scan_face → compare → alert</span>
+      </div>
+    </div>
+  </div>
+</div></body></html>
+"""),
+        ("fahndung_2", f"""<!DOCTYPE html><html><head><meta charset="utf-8">{_html_style(accent="#ef4444")}</head>
+<body><div class="app">
+  <div class="topbar">
+    <div class="logo">UtutCam</div>
+    <div class="crumb">Fahndung</div>
+    <div style="flex:1"></div>
+    <span class="tag" style="background:#ecfdf5;color:#059669;">✓ Treffer erkannt</span>
+  </div>
+  <div style="padding:40px 36px;height:656px;display:flex;justify-content:center;align-items:center;">
+    <div class="card" style="width:840px;padding:32px 36px;border-color:#fecaca;border-width:1px;
+               box-shadow:0 6px 30px rgba(220,38,38,.10);">
+      <div style="display:flex;gap:26px;align-items:center;">
+        <div style="width:170px;height:170px;border-radius:22px;overflow:hidden;border:3px solid #ef4444;
+                   flex-shrink:0;">
+          <img src="{photo_uri}" style="width:100%;height:100%;object-fit:cover;"/>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="tag" style="background:#ef4444;color:#fff;font-size:11px;">
+              FAHNDUNGS-TREFFER</span>
+            <span class="tag" style="background:#fef2f2;color:#dc2626;">Ähnlichkeit {best_score * 100:.0f} %</span>
+          </div>
+          <div style="font-size:26px;font-weight:800;color:#1e293b;margin-top:14px;
+                     line-height:1.25;">{best["title"][:70]}</div>
+          <div style="font-size:13px;color:#64748b;margin-top:8px;">
+            {best.get("beschreibung", "")[:110]}</div>
+          <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;">
+            <span class="tag" style="background:#eff6ff;color:#2563eb;">🖼 Screenshot gespeichert</span>
+            <span class="tag" style="background:#fef3c7;color:#b45309;">✈ Telegram-Alarm versendet</span>
+            <span class="tag" style="background:#f1f5f9;color:#475569;">Score {best_score:.2f} &gt;= 0.35</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></body></html>
+"""),
+    ]
+
+    with tempfile.TemporaryDirectory() as td:
+        shots = _render_html_shots(pages, td)
+        _vid_from_pngs(shots, out_path, secs_per_shot=4.0, fade=0.6, hold=0.8)
     print("fahndung:", out_path, os.path.getsize(out_path) // 1024, "KB")
 
 
@@ -381,7 +728,8 @@ def make_dieb_simulation(out_path, source_video=None):
         ow, oh = 1280, int(round(sh * scale))
     cap.release()
 
-    writer = cv2.VideoWriter(out_path, cv2.VideoWriter_fourcc(*"mp4v"),
+    tmp_mp4 = out_path + ".tmp.mp4"
+    writer = cv2.VideoWriter(tmp_mp4, cv2.VideoWriter_fourcc(*"mp4v"),
                              fps, (ow, oh))
     state = {"start": {}, "history": defaultdict(list), "sus": {},
              "notified": {}, "gesture": {}, "kps": {}}
@@ -408,6 +756,22 @@ def make_dieb_simulation(out_path, source_video=None):
             print(f"  dieb: {frame_count}/{total}")
     cap.release()
     writer.release()
+
+    import subprocess
+    import imageio_ffmpeg
+    ff = imageio_ffmpeg.get_ffmpeg_exe()
+    # H.264-Reencode OHNE faststart (moov bleibt am Dateiende - kein
+    # Korruptionsrisiko, fuer lokale Dateien voellig ausreichend).
+    cmd = [ff, "-y", "-i", tmp_mp4,
+           "-c:v", "libx264", "-preset", "medium", "-crf", "20",
+           "-pix_fmt", "yuv420p", "-an", out_path]
+    r = subprocess.run(cmd, capture_output=True, text=True)
+    if r.returncode != 0:
+        print("FFMPEG REENCODE ERROR:", r.stderr[:300])
+    try:
+        os.remove(tmp_mp4)
+    except OSError:
+        pass
     result = {
         "quelle": os.path.basename(src),
         "frames": frame_count,
@@ -470,6 +834,8 @@ def _web_shots(out_dir, pages=None, width=1440, height=900, port=5199):
                 name = ("index" if p == "/" else p.strip("/").replace("/", "_"))
                 out = os.path.join(out_dir, name + ".png")
                 page.screenshot(path=out, full_page=True)
+                blurred = _blur_faces(cv2.imread(out))
+                cv2.imwrite(out, blurred)
                 shot_paths.append(out)
                 print("  webapp shot:", name)
             browser.close()
@@ -525,10 +891,11 @@ def make_web_app_simulation(out_path):
         if not shots:
             raise SystemExit("keine Web-App-Screenshots erstellt")
 
-        writer = cv2.VideoWriter(out_path, cv2.VideoWriter_fourcc(*"mp4v"),
+        tmp_mp4 = out_path + ".tmp.mp4"
+        writer = cv2.VideoWriter(tmp_mp4, cv2.VideoWriter_fourcc(*"mp4v"),
                                  FPS, (W, H))
         if not writer.isOpened():
-            raise SystemExit(f"VideoWriter konnte {out_path} nicht oeffnen")
+            raise SystemExit(f"VideoWriter konnte {tmp_mp4} nicht oeffnen")
 
         first = True
         prev = None
@@ -550,7 +917,57 @@ def make_web_app_simulation(out_path):
             for i in range(_sec(0.8)):
                 writer.write(prev)
         writer.release()
+
+        import subprocess
+        import imageio_ffmpeg
+        ff = imageio_ffmpeg.get_ffmpeg_exe()
+        cmd = [ff, "-y", "-i", tmp_mp4,
+               "-c:v", "libx264", "-preset", "medium", "-crf", "20",
+               "-pix_fmt", "yuv420p", "-an", out_path]
+        r = subprocess.run(cmd, capture_output=True, text=True)
+        if r.returncode != 0:
+            print("FFMPEG REENCODE ERROR:", r.stderr[:300])
+        try:
+            os.remove(tmp_mp4)
+        except OSError:
+            pass
     print("web_app:", out_path, os.path.getsize(out_path) // 1024, "KB")
+
+
+def _settle_and_fix(paths, settle=6.0):
+    """Wartet das Korruptions-Fenster ab und repariert beschaeftigte Dateien.
+
+    Externes Tooling zerstoert mp4-Dateien, die ffmpeg frisch streamend
+    geschrieben hat, innerhalb weniger Sekunden (empirisch: ~< 6 s). Danach
+    verifizieren wir jede finale Datei aus einem frischen Subprozess und
+    stellen notfalls die Byte-Kopie (`.snap.mp4`) wieder her, die stabil ist.
+    """
+    import imageio_ffmpeg
+    ff = imageio_ffmpeg.get_ffmpeg_exe()
+    time.sleep(settle)
+    for out_path in paths:
+        for _ in range(3):
+            r = subprocess.run([ff, "-v", "error", "-i", out_path,
+                                "-f", "null", "-"],
+                               capture_output=True, text=True)
+            if not r.stderr.strip():
+                break
+            snap = out_path + ".snap.mp4"
+            if not os.path.exists(snap):
+                break
+            print(f"  korrupt -> wiederhergestellt: {os.path.basename(out_path)}")
+            shutil.copyfile(snap, out_path)
+            time.sleep(2.0)
+            try:
+                os.remove(snap)
+            except OSError:
+                pass
+        snap = out_path + ".snap.mp4"
+        if os.path.exists(snap):
+            try:
+                os.remove(snap)
+            except OSError:
+                pass
 
 
 def main() -> int:
@@ -561,16 +978,14 @@ def main() -> int:
     dieb_path = os.path.join(SIMDIR, "dieb_simulation.mp4")
 
     make_gesicht_simulation(gesicht_path)
-    _to_h264(gesicht_path)
     make_fahndung_simulation(fahndung_path)
-    _to_h264(fahndung_path)
     make_web_app_simulation(webapp_path)
-    _to_h264(webapp_path)
 
     if os.path.exists(dieb_path):
         os.remove(dieb_path)
     make_dieb_simulation(dieb_path)
-    _to_h264(dieb_path)
+
+    _settle_and_fix([gesicht_path, fahndung_path, webapp_path, dieb_path])
     return 0
 
 
