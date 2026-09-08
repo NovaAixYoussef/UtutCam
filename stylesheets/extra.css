@@ -1,142 +1,6 @@
 /* ============================================================
-   UtutCam Docs — Custom Styles (inspiriert von textualize.io)
+   UtutCam Docs — Custom Styles (Dokumentations-Stil)
    ============================================================ */
-
-/* --- Brand-Farben ----------------------------------------- */
-:root {
-  --md-primary-fg-color: #0f2f52;
-  --md-primary-fg-color--light: #29618f;
-  --md-primary-fg-color--dark: #071a30;
-  --md-accent-fg-color: #14b8a6;
-  --md-accent-fg-color--light: #5eead4;
-  --md-accent-fg-color--dark: #0f766e;
-}
-
-[data-md-color-scheme="slate"] {
-  --md-primary-fg-color: #2063f8;
-  --md-primary-fg-color--light: #5b8cff;
-  --md-primary-fg-color--dark: #0b3cb0;
-  --md-accent-fg-color: #2dd4bf;
-}
-
-/* --- Header: Verlauf + subtile Glow-Linie ----------------- */
-.md-header {
-  background: linear-gradient(120deg, var(--md-primary-fg-color--dark) 0%, var(--md-primary-fg-color) 55%, var(--md-primary-fg-color--light) 100%);
-}
-.md-tabs {
-  background: color-mix(in srgb, var(--md-primary-fg-color--dark) 85%, transparent);
-}
-.md-typeset a {
-  text-decoration: none;
-}
-.md-typeset a:hover {
-  text-decoration: underline;
-}
-
-/* --- Landing-Page: Hero ----------------------------------- */
-.ututcam-hero {
-  text-align: center;
-  padding: 1.2rem 0 0.6rem;
-}
-.ututcam-hero .hero-logo {
-  height: 120px;
-  margin: 0 auto 1rem;
-  filter: drop-shadow(0 8px 24px rgba(15, 47, 82, 0.35));
-}
-.ututcam-hero h1 {
-  font-size: 2.8rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  margin: 0 0 0.4rem;
-  color: inherit;
-}
-.md-badge-hero {
-  display: inline-block;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--md-accent-fg-color);
-  border: 1px solid var(--md-accent-fg-color);
-  border-radius: 999px;
-  padding: 0.15rem 0.9rem;
-  margin-bottom: 1rem;
-}
-.ututcam-hero .hero-tagline {
-  color: var(--md-typeset-color);
-  opacity: 0.85;
-  font-size: 1.15rem;
-  max-width: 42rem;
-  margin: 0 auto 1.4rem;
-}
-.ututcam-hero .hero-actions {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-bottom: 0.6rem;
-}
-.ututcam-hero .md-button {
-  border-radius: 999px;
-  padding: 0.55rem 1.4rem;
-  font-weight: 600;
-}
-.md-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.9rem;
-  justify-content: center;
-  margin: 1.2rem 0 0.2rem;
-}
-.md-stat {
-  border: 1px solid var(--md-typeset-table-color, rgba(90, 90, 90, 0.15));
-  border-radius: 12px;
-  background: var(--md-default-bg-color--lighter, rgba(0, 0, 0, 0.02));
-  padding: 0.55rem 1.1rem;
-  min-width: 130px;
-  text-align: center;
-}
-.md-stat .stat-num {
-  display: block;
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--md-primary-fg-color);
-}
-.md-stat .stat-label {
-  font-size: 0.8rem;
-  opacity: 0.75;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-/* --- Feature-Karten --------------------------------------- */
-.grid.cards > .card,
-.grid.cards > div {
-  border-radius: 14px;
-  border: 1px solid #dde6f0;
-  box-shadow: 0 1px 4px rgba(15, 47, 82, 0.08);
-  transition: transform 0.16s ease, box-shadow 0.16s ease;
-}
-.grid.cards > .card:hover,
-.grid.cards > div:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 26px rgba(15, 47, 82, 0.2);
-}
-.grid.cards img {
-  margin: 0;
-}
-[data-md-color-scheme="slate"] .grid.cards > .card {
-  border-color: #1e3a5f;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-}
-[data-md-color-scheme="slate"] .grid.cards > .card:hover {
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.6);
-}
-
-/* --- Diagramm-Inversion im dunklen Modus ------------------ */
-[data-md-color-scheme="slate"] .md-typeset img:not(.hero-logo) {
-  filter: invert(0.92) hue-rotate(180deg) contrast(0.92);
-}
 
 /* --- Custom Admonition "ututcam" mit Logo-Icon ------------ */
 :root {
@@ -167,6 +31,11 @@
           mask-position: center;
 }
 
+/* --- Diagramm-Inversion im dunklen Modus ------------------ */
+[data-md-color-scheme="slate"] .md-typeset img:not(.twemoji) {
+  filter: invert(0.92) hue-rotate(180deg) contrast(0.92);
+}
+
 /* --- Eingebettete Simulations-Videos ---------------------- */
 .sim-player {
   max-width: 720px;
@@ -187,14 +56,6 @@
   background: #0e1621;
 }
 
-/* --- Code-Blöcke & Tabellen leicht kompakter --------------- */
-.md-typeset code {
-  font-size: 0.85em;
-}
-.md-typeset table:not([class]) {
-  font-size: 0.82em;
-}
-
 /* --- API-Dokumentation ------------------------------------ */
 h2.doc.doc-heading {
   border-top: 1px solid rgba(0, 0, 0, 0.1);
@@ -203,19 +64,4 @@ h2.doc.doc-heading {
 div.doc-contents:not(.first) {
   padding-left: 20px;
   border-left: 0.05rem solid var(--md-typeset-table-color);
-}
-
-/* --- Diagrammbilder zentriert + abgerundet ----------------- */
-.md-typeset img {
-  border-radius: 10px;
-  margin: 0.5rem auto;
-  display: block;
-}
-
-/* --- Footersocials ---------------------------------------- */
-.md-typeset .footer-social {
-  display: flex;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-  margin: 1rem 0;
 }
