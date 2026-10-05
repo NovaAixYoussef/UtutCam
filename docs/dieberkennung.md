@@ -58,25 +58,30 @@ Browser: `http://localhost:5000` → Seite `Dieb_Erkennung`. Der
 ```powershell
 cd C:\Users\youss\Desktop\UtutCam
 
-# 1) Loitering-Erkennung (UtutPerson + DeepSORT): grün → lila bei Verdacht
-C:\Users\youss\AppData\Local\Python\pythoncore-3.14-64\python.exe dieb_erkennung\detector.py --webcam
-
-# 2) Volle Erkennung mit Keypoints (COCO-17-Skelett + Loitering + Geste):
-C:\Users\youss\AppData\Local\Python\pythoncore-3.14-64\python.exe dieb_erkennung\pose_detector.py --webcam
-
-# 3) TheftGuard (Diebstahl-Klassen + Abgleich gegen die Dieb-DB):
-C:\Users\youss\AppData\Local\Python\pythoncore-3.14-64\python.exe dieb_erkennung\theftguard.py --webcam
-
-# Nur die Dieb-Erkennung (ohne Gesichtsabgleich):
+# ★ EMPFOHLEN — Keypoints-Skelett + Loitering + Geste (nur Dieb-Erkennung):
 C:\Users\youss\AppData\Local\Python\pythoncore-3.14-64\python.exe dieb_erkennung\pose_detector.py --webcam --no-face
 
-# 4) Komplett-Live-Skript — ALLE Funktionen zusammen (4 Fenster: Pistole | Messer | Gesicht+Fahndung | Dieb+Keypoints):
+# Dasselbe Fenster, aber mit Gesichtsabgleich beim Verdacht:
+C:\Users\youss\AppData\Local\Python\pythoncore-3.14-64\python.exe dieb_erkennung\pose_detector.py --webcam
+
+# Variante OHNE Keypoints — nur Loitering (UtutPerson + DeepSORT): grün → lila
+C:\Users\youss\AppData\Local\Python\pythoncore-3.14-64\python.exe dieb_erkennung\detector.py --webcam
+
+# TheftGuard (Diebstahl-Klassen + Abgleich gegen die Dieb-DB):
+C:\Users\youss\AppData\Local\Python\pythoncore-3.14-64\python.exe dieb_erkennung\theftguard.py --webcam
+
+# Komplett-Live-Skript — ALLE Funktionen zusammen (4 Fenster: Pistole | Messer | Gesicht+Fahndung | Dieb+Keypoints):
 C:\Users\youss\AppData\Local\Python\pythoncore-3.14-64\python.exe messer_erkennung\live_all.py
 ```
 
-Befehle1–3 starten **jeweils nur** die Dieb-Erkennung in einem eigenen Fenster.
-Jeweiliges `q` beendet das Fenster. Optional `--telegram` für
-Benachrichtigungen, `--no-face` schaltet den Gesichtsabgleich aus.
+**Der erste Befehl ist der Empfohlene** — er öffnet das Fenster
+`Dieb-Erkennung Pose (q=beenden)` mit dem **COCO-17-Keypoints-Skelett**
+(17 Gelenkpunkte), lila Kasten + rotes Banner bei Verdacht.
+
+> `pose_detector.py` = **mit** Keypoints-Skelett · `detector.py` = **ohne**
+> Skelett, nur Bounding-Boxen. Alle vier starten **jeweils nur** ihr eigenes
+> Fenster. Jeweiliges `q` beendet es. Optional `--telegram` für
+> Benachrichtigungen, `--no-face` schaltet den Gesichtsabgleich aus.
 
 ### 2.3 Einzelmodul testen (Python-API)
 

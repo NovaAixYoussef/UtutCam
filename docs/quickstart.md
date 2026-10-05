@@ -87,11 +87,13 @@ Fenster: `Pistolen-Erkennung` · `Messer-Erkennung` · `Gesicht + Fahndung` ·
 === "Dieberkennung auf der Webcam"
 
     ```powershell
-    C:\Users\youss\AppData\Local\Python\pythoncore-3.14-64\python.exe dieb_erkennung\detector.py --webcam     # Loitering (grün → lila)
-    C:\Users\youss\AppData\Local\Python\pythoncore-3.14-64\python.exe dieb_erkennung\pose_detector.py --webcam  # Loitering + Keypoints + Geste
+    C:\Users\youss\AppData\Local\Python\pythoncore-3.14-64\python.exe dieb_erkennung\pose_detector.py --webcam --no-face  # ★ empfohlen: Keypoints + Loitering + Geste
+    C:\Users\youss\AppData\Local\Python\pythoncore-3.14-64\python.exe dieb_erkennung\pose_detector.py --webcam             # dasselbe + Gesichtsabgleich
+    C:\Users\youss\AppData\Local\Python\pythoncore-3.14-64\python.exe dieb_erkennung\detector.py --webcam                  # ohne Keypoints: nur Boxen (grün → lila)
     ```
 
-    `q` beendet das Dieb-Fenster.
+    1 Fenster: `Dieb-Erkennung Pose (q=beenden)` mit **COCO-17-Skelett**.
+    `q` beendet das Fenster.
 
 === "Dieberkennung"
 
