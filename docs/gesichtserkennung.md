@@ -1,4 +1,11 @@
-# UtutCam — Gesichtserkennung (InsightFace / Colab)
+# :material-face-recognition: Gesichtserkennung (InsightFace / Colab)
+
+!!! ututcam "Überblick"
+    InsightFace `buffalo_l` bildet jedes Gesicht auf einen
+    **512-dimensionalen Vektor** (Embedding) ab. Der **Kosinus-Vergleich**
+    mit der lokalen Datenbank `faces.json` liefert den Namen.
+
+## 1. Überblick
 
 ## 1. Überblick
 
@@ -15,9 +22,18 @@ Kamera-Gesicht ──► Neuronales Netz ──► Embedding (512) ──► Cos
 ```
 
 **Simulation:** [`gesicht_simulation.mp4`](simulationen/gesicht_simulation.mp4)
-(~13 s) — läuft mit **echtem InsightFace** auf einem echten Foto: Gesicht wird
-erkannt, zum 512-dim Embedding gemacht und per Cosinus gegen die Datenbank
-verglichen — bis zum Ergebnis „Erkannt / Unbekannt".
+(~12 s) — läuft mit **echtem InsightFace** auf einem echten Foto: Gesicht wird
+erkannt, zum 512-dim Embedding gemacht und per Cosinus gegen die
+Gesichtsdatenbank `faces.json` verglichen. Die Person **„Elon Musk"** (öffentliches
+Wikimedia-Foto, Cross-Photo-Match) wird dabei mit hohem Score erkannt — die
+anderen Datenbank-Personen (Youssef, Moussa, Zouhair, Hanane) bleiben darunter.
+
+<div class="sim-player">
+  <video controls preload="metadata" muted>
+    <source src="simulationen/gesicht_simulation.mp4" type="video/mp4">
+    Ihr Browser unterstützt kein eingebettetes Video.
+  </video>
+</div>
 
 ## 2. Die neuronale Netzwerk-Visualisierung
 
@@ -49,7 +65,7 @@ Neuronengröße zeigt optional die **Aktivierung**.
    Embedding in der Datenbank verglichen. Der Kosinus-Score beantwortet:
    „Wie ähnlich?“ Score ≥ 0.40 → **Person erkannt**, sonst „Unbekannt“.
 
-## 3. Startbefehle
+## 3. :material-terminal: Startbefehle
 
 > Alle Skripte laufen vom Projektstamm `C:\Users\youss\Desktop\UtutCam` aus.
 
@@ -68,7 +84,22 @@ C:\Users\youss\AppData\Local\Python\pythoncore-3.14-64\python.exe apps\face_reco
 
 `q` beendet das Live-Fenster.
 
-### 3.2 Face Manager (Datenbank verwalten, Thumbnail-Raster)
+### 3.2 Live-Erkennung auf der Webcam (nur Gesicht, 1 Fenster)
+
+```powershell
+cd C:\Users\youss\Desktop\UtutCam
+C:\Users\youss\AppData\Local\Python\pythoncore-3.14-64\python.exe apps\face_recognition_app.py
+```
+
+Im Fenster `Face Recognition` werden Personen live erkannt und benannt
+(Name + Score aus `faces.json`). Grüne Box = Treffer ≥ 0.40, rote Box =
+**Unbekannt**. `q` beendet, `a` speichert die aktuelle Person.
+
+> Läuft **ausschließlich** mit der Gesichtserkennung — kein Waffen-, Dieb- oder
+> Fahndungsmodul im Hintergrund. Für Gesicht **+ Fahndung** in einem Fenster:
+> `messer_erkennung\live_all.py` (4 Fenster, siehe Abschnitt3.5).
+
+### 3.3 Face Manager (Datenbank verwalten, Thumbnail-Raster)
 
 ```powershell
 C:\Users\youss\AppData\Local\Python\pythoncore-3.14-64\python.exe apps\face_manager_app.py
@@ -76,7 +107,7 @@ C:\Users\youss\AppData\Local\Python\pythoncore-3.14-64\python.exe apps\face_mana
 
 Personen hinzufügen/löschen über das Tkinter-Raster.
 
-### 3.3 Gesichtserkennung im Web (via Web-App)
+### 3.4 Gesichtserkennung im Web (via Web-App)
 
 ```powershell
 C:\Users\youss\AppData\Local\Python\pythoncore-3.14-64\python.exe web_app\server.py
@@ -86,7 +117,18 @@ Dann im Browser `http://localhost:5000` → Seite `Gesicht_erkennung` (Serverlog
 zeigt den Port). Der `GesichtWorker` läuft dauerhaft im Hintergrund und meldet
 Treffer.
 
-## 4. Wie es funktioniert
+### 3.5 Alle Funktionen kombiniert (4 Fenster)
+
+```powershell
+C:\Users\youss\AppData\Local\Python\pythoncore-3.14-64\python.exe messer_erkennung\live_all.py
+```
+
+Öffnet `Pistolen-Erkennung` · `Messer-Erkennung` · `Gesicht + Fahndung` ·
+`Dieb-Erkennung (Keypoints)`. `q` beendet alle Fenster.
+
+> Nur als Gesamtpaket. **Nur die Gesichtserkennung alleine** → Abschnitt3.2.
+
+## 4. :material-cog: Wie es funktioniert
 
 ### 4.1 Embedding erzeugen (Kern-Funktion)
 
@@ -157,7 +199,7 @@ Die Gesichtserkennung ist in mehreren Modulen eingebaut:
 | `messer_erkennung/UtutCam.py` | Live-Pipeline prüft Gesicht (FACE_EVERY=6 Frames) + Fahndung |
 | `relay/relay_client.py` | Melden erkannte Person/Fahndung per Telegram |
 
-## 7. FAQ
+## 7. :material-help-circle: FAQ
 
 | Frage | Antwort |
 |-------|---------|
@@ -166,7 +208,7 @@ Die Gesichtserkennung ist in mehreren Modulen eingebaut:
 | Warum 512 Zahlen? | Kompakt + schnell vergleichbar; Standard von InsightFace |
 | Läuft alles offline? | Ja, Modell & DB sind lokal; nur die Fahndung holt neue Daten vom Web |
 
-## 8. Verwandte Dateien
+## 8. :material-folder-open: Verwandte Dateien
 
 - `face_erkennung/face_database.py` — Kern-API (Embedding, Matchen, DB)
 - `apps/face_recognition_app.py` — Webcam-Hinzufügen

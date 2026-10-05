@@ -1,4 +1,9 @@
-# UtutCam — Fahndung (Bundespolizei-Scanner + Live-Match)
+# :material-police-badge: Fahndung (Bundespolizei-Scanner + Live-Match)
+
+!!! ututcam "Überblick"
+    lädt automatisch die **aktuelle Fahndungsliste der Bundespolizei**,
+    berechnet 512-dim Embeddings (InsightFace) und gleicht **live** jedes
+    Kameragesicht ab. Treffer (Score ≥ 0.35) → Telegram + Screenshot.
 
 ## 1. Überblick
 
@@ -23,7 +28,14 @@ Live-Kamera ──► Gesicht (buffalo_l) ──► Cosinus-Vergleich ──► 
 Kameragesicht wird mit InsightFace embeddingiert und gegen alle
 Fahndungs-Vektoren verglichen, bis der Treffer (Score ≥ 0.35) angezeigt wird.
 
-## 2. Startbefehle
+<div class="sim-player">
+  <video controls preload="metadata" muted>
+    <source src="simulationen/fahndung_simulation.mp4" type="video/mp4">
+    Ihr Browser unterstützt kein eingebettetes Video.
+  </video>
+</div>
+
+## 2. :material-terminal: Startbefehle
 
 > Alle Skripte laufen vom Projektstamm `C:\Users\youss\Desktop\UtutCam` aus.
 
@@ -37,7 +49,23 @@ C:\Users\youss\AppData\Local\Python\pythoncore-3.14-64\python.exe web_app\server
 Browser: `http://localhost:5000` → Seite `Fahndung`. Der `FahndungWorker`
 läuft im Hintergrund.
 
-### 2.2 Daten manuell aktualisieren
+### 2.2 Live-Match auf der Webcam (nur Fahndung, 1 Fenster)
+
+```powershell
+cd C:\Users\youss\Desktop\UtutCam
+C:\Users\youss\AppData\Local\Python\pythoncore-3.14-64\python.exe apps\fahndung_app.py
+```
+
+Öffnet das Fahndungs-Fenster. Über **Scan** wird die Webcam gestartet: jedes
+Gesicht wird live gegen `fahndungen.json` geprüft (Schwelle ≥ 0.35). Treffer
+erscheinen in der Liste mit Titel und Ähnlichkeits-Score, optional kommt eine
+Telegram-Benachrichtigung mit Screenshot. `Schließen` beendet.
+
+> Läuft **ausschließlich** mit der Fahndung — kein Waffen-, Dieb- oder
+> freies Gesichtsmodul. Für Gesicht + Fahndung als Live-Bild mit
+> **GESUCHT**-Overlay: `messer_erkennung\live_all.py` (4 Fenster, Abschnitt2.5).
+
+### 2.3 Daten manuell aktualisieren
 
 ```powershell
 C:\Users\youss\AppData\Local\Python\pythoncore-3.14-64\python.exe -c "from fahndung import fahndung_downloader as f; f.refresh_fahndungen()"
@@ -45,13 +73,27 @@ C:\Users\youss\AppData\Local\Python\pythoncore-3.14-64\python.exe -c "from fahnd
 
 > Internetverbindung erforderlich (bundespolizei.de).
 
-### 2.3 Selbsttest
+### 2.4 Selbsttest
 
 ```python
 python -c "from messer_erkennung.UtutCam import run_fahndung_test; run_fahndung_test()"
 ```
 
-## 3. Wie es funktioniert
+### 2.5 Kombination: Gesicht + Fahndung als Live-Bild (4 Fenster)
+
+```powershell
+cd C:\Users\youss\Desktop\UtutCam
+C:\Users\youss\AppData\Local\Python\pythoncore-3.14-64\python.exe messer_erkennung\live_all.py
+```
+
+Im Fenster `Gesicht + Fahndung` wird jedes Kamera-Gesicht live gegen
+`fahndungen.json` geprüft und bei Score ≥ 0.35 als **GESUCHT** markiert.
+Zusätzlich laufen Pistole, Messer und Dieb-Erkennung in eigenen Fenstern.
+`q` beendet alle Fenster.
+
+> Nur die Fahndung alleine → Abschnitt2.2.
+
+## 3. :material-cog: Wie es funktioniert
 
 Die Kernfunktionen liegen in `fahndung/fahndung_downloader.py`:
 
@@ -104,7 +146,7 @@ data/fahndung/
 - `relay/relay_client.py` → Alarm per Telegram
 - Tests: `tests/test_fahndung.py` (Parsing, DB-Roundtrip, Matching)
 
-## 7. Verwandte Dateien
+## 7. :material-folder-open: Verwandte Dateien
 
 - `fahndung/fahndung_downloader.py` — Scraper + Embedding + Match
 - `data/fahndung/` — DB + Bilder
